@@ -18,18 +18,18 @@ package org.apache.arrow.driver.jdbc;
 
 import static org.apache.arrow.driver.jdbc.utils.ArrowFlightConnectionConfigImpl.ArrowFlightConnectionProperty.replaceSemiColons;
 
+import io.grpc.stub.AbstractStub;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+
 import org.apache.arrow.driver.jdbc.client.ArrowFlightSqlClientHandler;
 import org.apache.arrow.driver.jdbc.client.utils.FlightClientCache;
 import org.apache.arrow.driver.jdbc.utils.ArrowFlightConnectionConfigImpl;
-import org.apache.arrow.flight.FlightClient;
+import org.apache.arrow.flight.*;
 import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.util.AutoCloseables;
 import org.apache.arrow.util.Preconditions;
@@ -57,6 +57,7 @@ public final class ArrowFlightConnection extends AvaticaConnection {
    * @param config the {@link ArrowFlightConnectionConfigImpl} to use.
    * @param allocator the {@link BufferAllocator} to use.
    * @param clientHandler the {@link ArrowFlightSqlClientHandler} to use.
+   * @param callOptionConsumer for the connection to add {@link CallOption} to clientHandler
    */
   private ArrowFlightConnection(
       final ArrowFlightJdbcDriver driver,
@@ -65,12 +66,17 @@ public final class ArrowFlightConnection extends AvaticaConnection {
       final Properties properties,
       final ArrowFlightConnectionConfigImpl config,
       final BufferAllocator allocator,
-      final ArrowFlightSqlClientHandler clientHandler) {
+      final ArrowFlightSqlClientHandler clientHandler,
+      final Consumer<CallOptions.GrpcCallOption> callOptionConsumer) {
     super(driver, factory, url, properties);
     this.config = Preconditions.checkNotNull(config, "Config cannot be null.");
     this.allocator = Preconditions.checkNotNull(allocator, "Allocator cannot be null.");
     this.clientHandler = Preconditions.checkNotNull(clientHandler, "Handler cannot be null.");
     this.metadataResultSetCount = 0;
+    // add session id header as CallOption
+    CallHeaders headers = new FlightCallHeaders();
+    headers.insert(ArrowFlightConnectionConfigImpl.HEADER_FG_SESSION_ID, id);
+    callOptionConsumer.accept(new HeaderCallOption(headers));
   }
 
   /**
@@ -93,16 +99,30 @@ public final class ArrowFlightConnection extends AvaticaConnection {
       throws SQLException {
     url = replaceSemiColons(url);
     final ArrowFlightConnectionConfigImpl config = new ArrowFlightConnectionConfigImpl(properties);
+
+    // a CallOption for connection to use
+    final Set<CallOptions.GrpcCallOption> wrappedCallOptions = new HashSet<>();
+    CallOption connectionCallOption = new CallOptions.GrpcCallOption() {
+        @Override
+        public <T extends AbstractStub<T>> T wrapStub(T stub) {
+            for (CallOptions.GrpcCallOption oneCallOption : wrappedCallOptions) {
+                stub = oneCallOption.wrapStub(stub);
+            }
+            return stub;
+        }
+    };
+    // build conne
     final ArrowFlightSqlClientHandler clientHandler =
-        createNewClientHandler(config, allocator, driver.getDriverVersion());
+        createNewClientHandler(config, allocator, driver.getDriverVersion(), connectionCallOption);
     return new ArrowFlightConnection(
-        driver, factory, url, properties, config, allocator, clientHandler);
+        driver, factory, url, properties, config, allocator, clientHandler, wrappedCallOptions::add);
   }
 
   private static ArrowFlightSqlClientHandler createNewClientHandler(
       final ArrowFlightConnectionConfigImpl config,
       final BufferAllocator allocator,
-      final DriverVersion driverVersion)
+      final DriverVersion driverVersion,
+      final CallOption connectionCallOption)
       throws SQLException {
     try {
       return new ArrowFlightSqlClientHandler.Builder()
@@ -121,6 +141,8 @@ public final class ArrowFlightConnection extends AvaticaConnection {
           .withDisableCertificateVerification(config.getDisableCertificateVerification())
           .withToken(config.getToken())
           .withCallOptions(config.toCallOption())
+          // add CallOption for connection
+          .withCallOptions(connectionCallOption)
           .withRetainCookies(config.retainCookies())
           .withRetainAuth(config.retainAuth())
           .withCatalog(config.getCatalog())

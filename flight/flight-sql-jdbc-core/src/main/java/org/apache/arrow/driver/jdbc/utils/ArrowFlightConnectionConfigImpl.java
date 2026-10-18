@@ -37,6 +37,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** A {@link ConnectionConfig} for the {@link ArrowFlightConnection}. */
 public final class ArrowFlightConnectionConfigImpl extends ConnectionConfigImpl {
+
+  // header name for flight-gateway session id
+  public static final String HEADER_FG_SESSION_ID = "x-fg-session-id";
+
   public ArrowFlightConnectionConfigImpl(final Properties properties) {
     super(properties);
   }
