@@ -1,0 +1,790 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="ValueVector" href="vector.html" /><link rel="prev" title="Development Guidelines" href="developers/development.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>Memory Management - arrow-java 20.0.0-SNAPSHOT documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">arrow-java 20.0.0-SNAPSHOT documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">arrow-java 20.0.0-SNAPSHOT documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstartguide.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">High-Level Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Java Modules</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="developers/index.html">Java Development</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Java Development</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="developers/building.html">Building Arrow Java</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers/development.html">Development Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Memory Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vector.html">ValueVector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vector_schema_root.html">Tabular Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="table.html">Table</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipc.html">Reading/Writing IPC formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">Java Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flight.html">Arrow Flight RPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flight_sql.html">Arrow Flight SQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flight_sql_jdbc_driver.html">Arrow Flight SQL JDBC Driver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="substrait.html">Substrait</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdata.html">C Data Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jdbc.html">Arrow JDBC Adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference (javadoc)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arrow.apache.org/cookbook/java/">Cookbook</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/memory.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="memory-management">
+<h1>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h1>
+<p>The memory modules contain all the functionality that Arrow uses to allocate and deallocate memory. This document is divided in two parts:
+The first part, <em>Memory Basics</em>, provides a high-level introduction. The following section, <em>Arrow Memory In-Depth</em>, fills in the details.</p>
+<section id="memory-basics">
+<h2>Memory Basics<a class="headerlink" href="#memory-basics" title="Link to this heading">¶</a></h2>
+<p>This section will introduce you to the major concepts in Java’s memory management:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://arrow.apache.org/java/current/reference/org.apache.arrow.memory.core/org/apache/arrow/memory/ArrowBuf.html">ArrowBuf</a></p></li>
+<li><p><a class="reference external" href="https://arrow.apache.org/java/current/reference/org.apache.arrow.memory.core/org/apache/arrow/memory/BufferAllocator.html">BufferAllocator</a></p></li>
+<li><p>Reference counting</p></li>
+</ul>
+<p>It also provides some guidelines for working with memory in Arrow, and describes how to debug memory issues when they arise.</p>
+<section id="getting-started">
+<h3>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h3>
+<p>Arrow’s memory management is built around the needs of the columnar format and using off-heap memory.
+Arrow Java has its own independent implementation. It does not wrap the C++ implementation, although the framework is flexible enough
+to be used with memory allocated in C++ that is used by Java code.</p>
+<p>Arrow provides multiple modules: the core interfaces, and implementations of the interfaces.
+Users need the core interfaces, and exactly one of the implementations.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">memory-core</span></code>: Provides the interfaces used by the Arrow libraries and applications.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">memory-netty</span></code>: An implementation of the memory interfaces based on the <a class="reference external" href="https://netty.io/wiki/">Netty</a> library.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">memory-unsafe</span></code>: An implementation of the memory interfaces based on the <a class="reference external" href="https://web.archive.org/web/20210929024401/http://www.docjar.com/html/api/sun/misc/Unsafe.java.html">sun.misc.Unsafe</a> library.</p></li>
+</ul>
+</section>
+<section id="arrowbuf">
+<h3>ArrowBuf<a class="headerlink" href="#arrowbuf" title="Link to this heading">¶</a></h3>
+<p>ArrowBuf represents a single, contiguous region of <a class="reference external" href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/ByteBuffer.html">direct memory</a>. It consists of an address and a length,
+and provides low-level interfaces for working with the contents, similar to ByteBuffer.</p>
+<p>Unlike (Direct)ByteBuffer, it has reference counting built in, as discussed later.</p>
+<section id="why-arrow-uses-direct-memory">
+<h4>Why Arrow Uses Direct Memory<a class="headerlink" href="#why-arrow-uses-direct-memory" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p>The JVM can optimize I/O operations when using direct memory/direct buffers; it will attempt to avoid copying buffer contents to/from an intermediate buffer. This can speed up IPC in Arrow.</p></li>
+<li><p>Since Arrow always uses direct memory, JNI modules can directly wrap native memory addresses instead of copying data. We use this in modules like the C Data Interface.</p></li>
+<li><p>Conversely, on the C++ side of the JNI boundary, we can directly access the memory in ArrowBuf without copying data.</p></li>
+</ul>
+</section>
+</section>
+<section id="bufferallocator">
+<h3>BufferAllocator<a class="headerlink" href="#bufferallocator" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference external" href="https://arrow.apache.org/java/current/reference/org.apache.arrow.memory.core/org/apache/arrow/memory/BufferAllocator.html">BufferAllocator</a> is primarily an arena or nursery used for accounting of buffers (ArrowBuf instances).
+As the name suggests, it can allocate new buffers associated with itself, but it can also
+handle the accounting for buffers allocated elsewhere. For example, it handles the Java-side accounting for
+memory allocated in C++ and shared with Java using the C-Data Interface. In the code below it performs an allocation:</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.ArrowBuf</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.BufferAllocator</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.RootAllocator</span><span class="p">;</span>
+
+<span class="k">try</span><span class="p">(</span><span class="n">BufferAllocator</span><span class="w"> </span><span class="n">bufferAllocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RootAllocator</span><span class="p">(</span><span class="mi">8</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">)){</span>
+<span class="w">    </span><span class="n">ArrowBuf</span><span class="w"> </span><span class="n">arrowBuf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bufferAllocator</span><span class="p">.</span><span class="na">buffer</span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">);</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">arrowBuf</span><span class="p">);</span>
+<span class="w">    </span><span class="n">arrowBuf</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ArrowBuf<span class="o">[</span><span class="m">2</span><span class="o">]</span>,<span class="w"> </span>address:140363641651200,<span class="w"> </span>length:4096
+</pre></div>
+</div>
+<p>The concrete implementation of the BufferAllocator interface is <a class="reference external" href="https://arrow.apache.org/java/current/reference/org.apache.arrow.memory.core/org/apache/arrow/memory/RootAllocator.html">RootAllocator</a>. Applications should generally create
+one RootAllocator at the start of the program, and use it through the BufferAllocator interface. Allocators implement
+AutoCloseable and must be closed after the application is done with them; this will check that all outstanding memory
+has been freed (see the next section).</p>
+<p>Arrow provides a tree-based model for memory allocation. The RootAllocator is created first, then more allocators
+are created as children of an existing allocator via <a class="reference external" href="https://arrow.apache.org/java/current/reference/org.apache.arrow.memory.core/org/apache/arrow/memory/RootAllocator.html#newChildAllocator-java.lang.String-org.apache.arrow.memory.AllocationListener-long-long-">newChildAllocator</a>. When creating a RootAllocator or a child
+allocator, a memory limit is provided, and when allocating memory, the limit is checked. Furthermore, when allocating
+memory from a child allocator, those allocations are also reflected in all parent allocators. Hence, the RootAllocator
+effectively sets the program-wide memory limit, and serves as the master bookkeeper for all memory allocations.</p>
+<p>Child allocators are not strictly required, but can help better organize code. For instance, a lower memory limit can
+be set for a particular section of code. The child allocator can be closed when that section completes,
+at which point it checks that that section didn’t leak any memory.
+Child allocators can also be named, which makes it easier to tell where an ArrowBuf came from during debugging.</p>
+</section>
+<section id="reference-counting">
+<h3>Reference counting<a class="headerlink" href="#reference-counting" title="Link to this heading">¶</a></h3>
+<p>Because direct memory is expensive to allocate and deallocate, allocators may share direct buffers. To manage shared buffers
+deterministically, we use manual reference counting instead of the garbage collector.
+This simply means that each buffer has a counter keeping track of the number of references to
+the buffer, and the user is responsible for properly incrementing/decrementing the counter as the buffer is used.</p>
+<p>In Arrow, each ArrowBuf has an associated <a class="reference external" href="https://arrow.apache.org/java/current/reference/org.apache.arrow.memory.core/org/apache/arrow/memory/ReferenceManager.html">ReferenceManager</a> that tracks the reference count. You can retrieve
+it with ArrowBuf.getReferenceManager(). The reference count is updated using <a class="reference external" href="https://arrow.apache.org/java/current/reference/org.apache.arrow.memory.core/org/apache/arrow/memory/ReferenceManager.html#release--">ReferenceManager.release</a> to decrement the count,
+and <a class="reference external" href="https://arrow.apache.org/java/current/reference/org.apache.arrow.memory.core/org/apache/arrow/memory/ReferenceManager.html#retain--">ReferenceManager.retain</a> to increment it.</p>
+<p>Of course, this is tedious and error-prone, so instead of directly working with buffers, we typically use
+higher-level APIs like ValueVector. Such classes generally implement Closeable/AutoCloseable and will automatically
+decrement the reference count when closed.</p>
+<p>Allocators implement AutoCloseable as well. In this case, closing the allocator will check that all buffers
+obtained from the allocator are closed. If not, <code class="docutils literal notranslate"><span class="pre">close()</span></code> method will raise an exception; this helps track
+memory leaks from unclosed buffers.</p>
+<p>Reference counting needs to be handled carefully. To ensure that an
+independent section of code has fully cleaned up all allocated buffers, use a new child allocator.</p>
+</section>
+<section id="development-guidelines">
+<h3>Development Guidelines<a class="headerlink" href="#development-guidelines" title="Link to this heading">¶</a></h3>
+<p>Applications should generally:</p>
+<ul class="simple">
+<li><p>Use the BufferAllocator interface in APIs instead of RootAllocator.</p></li>
+<li><p>Create one RootAllocator at the start of the program and explicitly pass it when needed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">close()</span></code> allocators after use (whether they are child allocators or the RootAllocator), either manually or preferably via a try-with-resources statement.</p></li>
+</ul>
+</section>
+<section id="debugging-memory-leaks-allocation">
+<h3>Debugging Memory Leaks/Allocation<a class="headerlink" href="#debugging-memory-leaks-allocation" title="Link to this heading">¶</a></h3>
+<p>In <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> mode, the allocator and supporting classes will record additional
+debug tracking information to better track down memory leaks and issues. To
+enable DEBUG mode pass the following system property to the VM when starting
+<code class="docutils literal notranslate"><span class="pre">-Darrow.memory.debug.allocator=true</span></code>.</p>
+<p>When DEBUG is enabled, a log will be kept of allocations. Configure SLF4J to see these logs (e.g. via Logback/Apache Log4j).
+Consider the following example to see how it helps us with the tracking of allocators:</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.ArrowBuf</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.BufferAllocator</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.RootAllocator</span><span class="p">;</span>
+
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">BufferAllocator</span><span class="w"> </span><span class="n">bufferAllocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RootAllocator</span><span class="p">(</span><span class="mi">8</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ArrowBuf</span><span class="w"> </span><span class="n">arrowBuf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bufferAllocator</span><span class="p">.</span><span class="na">buffer</span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">);</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">arrowBuf</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Without the debug mode enabled, when we close the allocator, we get this:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="m">11</span>:56:48.944<span class="w"> </span><span class="o">[</span>main<span class="o">]</span><span class="w"> </span>INFO<span class="w">  </span>o.apache.arrow.memory.BaseAllocator<span class="w"> </span>-<span class="w"> </span>Debug<span class="w"> </span>mode<span class="w"> </span>disabled.
+ArrowBuf<span class="o">[</span><span class="m">2</span><span class="o">]</span>,<span class="w"> </span>address:140508391276544,<span class="w"> </span>length:4096
+<span class="m">16</span>:28:08.847<span class="w"> </span><span class="o">[</span>main<span class="o">]</span><span class="w"> </span>ERROR<span class="w"> </span>o.apache.arrow.memory.BaseAllocator<span class="w"> </span>-<span class="w"> </span>Memory<span class="w"> </span>was<span class="w"> </span>leaked<span class="w"> </span>by<span class="w"> </span>query.<span class="w"> </span>Memory<span class="w"> </span>leaked:<span class="w"> </span><span class="o">(</span><span class="m">4096</span><span class="o">)</span>
+Allocator<span class="o">(</span>ROOT<span class="o">)</span><span class="w"> </span><span class="m">0</span>/4096/4096/8192<span class="w"> </span><span class="o">(</span>res/actual/peak/limit<span class="o">)</span>
+</pre></div>
+</div>
+<p>Enabling the debug mode, we get more details:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="m">11</span>:56:48.944<span class="w"> </span><span class="o">[</span>main<span class="o">]</span><span class="w"> </span>INFO<span class="w">  </span>o.apache.arrow.memory.BaseAllocator<span class="w"> </span>-<span class="w"> </span>Debug<span class="w"> </span>mode<span class="w"> </span>enabled.
+ArrowBuf<span class="o">[</span><span class="m">2</span><span class="o">]</span>,<span class="w"> </span>address:140437894463488,<span class="w"> </span>length:4096
+Exception<span class="w"> </span><span class="k">in</span><span class="w"> </span>thread<span class="w"> </span><span class="s2">"main"</span><span class="w"> </span>java.lang.IllegalStateException:<span class="w"> </span>Allocator<span class="o">[</span>ROOT<span class="o">]</span><span class="w"> </span>closed<span class="w"> </span>with<span class="w"> </span>outstanding<span class="w"> </span>buffers<span class="w"> </span>allocated<span class="w"> </span><span class="o">(</span><span class="m">1</span><span class="o">)</span>.
+Allocator<span class="o">(</span>ROOT<span class="o">)</span><span class="w"> </span><span class="m">0</span>/4096/4096/8192<span class="w"> </span><span class="o">(</span>res/actual/peak/limit<span class="o">)</span>
+<span class="w">  </span>child<span class="w"> </span>allocators:<span class="w"> </span><span class="m">0</span>
+<span class="w">  </span>ledgers:<span class="w"> </span><span class="m">1</span>
+<span class="w">    </span>ledger<span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w"> </span>allocator:<span class="w"> </span>ROOT<span class="o">)</span>,<span class="w"> </span>isOwning:<span class="w"> </span>,<span class="w"> </span>size:<span class="w"> </span>,<span class="w"> </span>references:<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>life:<span class="w"> </span><span class="m">261438177096661</span>..0,<span class="w"> </span>allocatorManager:<span class="w"> </span><span class="o">[</span>,<span class="w"> </span>life:<span class="w"> </span><span class="o">]</span><span class="w"> </span>holds<span class="w"> </span><span class="m">1</span><span class="w"> </span>buffers.
+<span class="w">        </span>ArrowBuf<span class="o">[</span><span class="m">2</span><span class="o">]</span>,<span class="w"> </span>address:140437894463488,<span class="w"> </span>length:4096
+<span class="w">  </span>reservations:<span class="w"> </span><span class="m">0</span>
+</pre></div>
+</div>
+<p>Additionally, in debug mode, <a class="reference external" href="https://arrow.apache.org/java/current/reference/org.apache.arrow.memory.core/org/apache/arrow/memory/ArrowBuf.html#print-java.lang.StringBuilder-int-org.apache.arrow.memory.BaseAllocator.Verbosity-">ArrowBuf.print()</a> can be used to obtain a debug string.
+This will include information about allocation operations on the buffer with stack traces, such as when/where the buffer was allocated.</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.ArrowBuf</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.BufferAllocator</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.RootAllocator</span><span class="p">;</span>
+
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">BufferAllocator</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RootAllocator</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">ArrowBuf</span><span class="w"> </span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">allocator</span><span class="p">.</span><span class="na">buffer</span><span class="p">(</span><span class="mi">1024</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">StringBuilder</span><span class="w"> </span><span class="n">sb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">StringBuilder</span><span class="p">();</span>
+<span class="w">    </span><span class="n">buf</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="n">sb</span><span class="p">,</span><span class="w"> </span><span class="cm">/*indent*/</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">sb</span><span class="p">.</span><span class="na">toString</span><span class="p">());</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ArrowBuf[2], address:140433199984656, length:1024
+ event log for: ArrowBuf[2]
+   675959093395667 create()
+      at org.apache.arrow.memory.util.HistoricalLog$Event.&lt;init&gt;(HistoricalLog.java:175)
+      at org.apache.arrow.memory.util.HistoricalLog.recordEvent(HistoricalLog.java:83)
+      at org.apache.arrow.memory.ArrowBuf.&lt;init&gt;(ArrowBuf.java:96)
+      at org.apache.arrow.memory.BufferLedger.newArrowBuf(BufferLedger.java:271)
+      at org.apache.arrow.memory.BaseAllocator.bufferWithoutReservation(BaseAllocator.java:300)
+      at org.apache.arrow.memory.BaseAllocator.buffer(BaseAllocator.java:276)
+      at org.apache.arrow.memory.RootAllocator.buffer(RootAllocator.java:29)
+      at org.apache.arrow.memory.BaseAllocator.buffer(BaseAllocator.java:240)
+      at org.apache.arrow.memory.RootAllocator.buffer(RootAllocator.java:29)
+      at REPL.$JShell$14.do_it$($JShell$14.java:10)
+      at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
+      at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+      at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+      at java.lang.reflect.Method.invoke(Method.java:566)
+      at jdk.jshell.execution.DirectExecutionControl.invoke(DirectExecutionControl.java:209)
+      at jdk.jshell.execution.RemoteExecutionControl.invoke(RemoteExecutionControl.java:116)
+      at jdk.jshell.execution.DirectExecutionControl.invoke(DirectExecutionControl.java:119)
+      at jdk.jshell.execution.ExecutionControlForwarder.processCommand(ExecutionControlForwarder.java:144)
+      at jdk.jshell.execution.ExecutionControlForwarder.commandLoop(ExecutionControlForwarder.java:262)
+      at jdk.jshell.execution.Util.forwardExecutionControl(Util.java:76)
+      at jdk.jshell.execution.Util.forwardExecutionControlAndIO(Util.java:137)
+      at jdk.jshell.execution.RemoteExecutionControl.main(RemoteExecutionControl.java:70)
+</pre></div>
+</div>
+<p>The BufferAllocator also provides a <code class="docutils literal notranslate"><span class="pre">BufferAllocator.toVerboseString()</span></code> which can be used in
+<code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> mode to get extensive stacktrace information and events associated with various Allocator behaviors.</p>
+<p>Finally, enabling the <code class="docutils literal notranslate"><span class="pre">TRACE</span></code> logging level will automatically provide this stack trace when the allocator is closed:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">// Assumes use of Logback; adjust for Log4j, etc. as appropriate</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ch.qos.logback.classic.Level</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ch.qos.logback.classic.Logger</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.ArrowBuf</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.BufferAllocator</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.apache.arrow.memory.RootAllocator</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.slf4j.LoggerFactory</span><span class="p">;</span>
+
+<span class="c1">// Set log level to TRACE to get tracebacks</span>
+<span class="p">((</span><span class="n">Logger</span><span class="p">)</span><span class="w"> </span><span class="n">LoggerFactory</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="s">"org.apache.arrow"</span><span class="p">)).</span><span class="na">setLevel</span><span class="p">(</span><span class="n">Level</span><span class="p">.</span><span class="na">TRACE</span><span class="p">);</span>
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">BufferAllocator</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RootAllocator</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Leak buffer</span>
+<span class="w">  </span><span class="n">allocator</span><span class="p">.</span><span class="na">buffer</span><span class="p">(</span><span class="mi">1024</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>|  Exception java.lang.IllegalStateException: Allocator[ROOT] closed with outstanding buffers allocated (1).
+Allocator(ROOT) 0/1024/1024/9223372036854775807 (res/actual/peak/limit)
+  child allocators: 0
+  ledgers: 1
+    ledger[1] allocator: ROOT), isOwning: , size: , references: 1, life: 712040870231544..0, allocatorManager: [, life: ] holds 1 buffers.
+        ArrowBuf[2], address:139926571810832, length:1024
+     event log for: ArrowBuf[2]
+       712040888650134 create()
+              at org.apache.arrow.memory.util.StackTrace.&lt;init&gt;(StackTrace.java:34)
+              at org.apache.arrow.memory.util.HistoricalLog$Event.&lt;init&gt;(HistoricalLog.java:175)
+              at org.apache.arrow.memory.util.HistoricalLog.recordEvent(HistoricalLog.java:83)
+              at org.apache.arrow.memory.ArrowBuf.&lt;init&gt;(ArrowBuf.java:96)
+              at org.apache.arrow.memory.BufferLedger.newArrowBuf(BufferLedger.java:271)
+              at org.apache.arrow.memory.BaseAllocator.bufferWithoutReservation(BaseAllocator.java:300)
+              at org.apache.arrow.memory.BaseAllocator.buffer(BaseAllocator.java:276)
+              at org.apache.arrow.memory.RootAllocator.buffer(RootAllocator.java:29)
+              at org.apache.arrow.memory.BaseAllocator.buffer(BaseAllocator.java:240)
+              at org.apache.arrow.memory.RootAllocator.buffer(RootAllocator.java:29)
+              at REPL.$JShell$18.do_it$($JShell$18.java:13)
+              at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
+              at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+              at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+              at java.lang.reflect.Method.invoke(Method.java:566)
+              at jdk.jshell.execution.DirectExecutionControl.invoke(DirectExecutionControl.java:209)
+              at jdk.jshell.execution.RemoteExecutionControl.invoke(RemoteExecutionControl.java:116)
+              at jdk.jshell.execution.DirectExecutionControl.invoke(DirectExecutionControl.java:119)
+              at jdk.jshell.execution.ExecutionControlForwarder.processCommand(ExecutionControlForwarder.java:144)
+              at jdk.jshell.execution.ExecutionControlForwarder.commandLoop(ExecutionControlForwarder.java:262)
+              at jdk.jshell.execution.Util.forwardExecutionControl(Util.java:76)
+              at jdk.jshell.execution.Util.forwardExecutionControlAndIO(Util.java:137)
+
+  reservations: 0
+
+|        at BaseAllocator.close (BaseAllocator.java:405)
+|        at RootAllocator.close (RootAllocator.java:29)
+|        at (#8:1)
+</pre></div>
+</div>
+<p>Sometimes, explicitly passing allocators around is difficult. For example, it
+can be hard to pass around extra state, like an allocator, through layers of
+existing application or framework code. A global or singleton allocator instance
+can be useful here, though it should not be your first choice.</p>
+<p>How this works:</p>
+<ol class="arabic simple">
+<li><p>Set up a global allocator in a singleton class.</p></li>
+<li><p>Provide methods to create child allocators from the global allocator.</p></li>
+<li><p>Give child allocators proper names to make it easier to figure out where
+allocations occurred in case of errors.</p></li>
+<li><p>Ensure that resources are properly closed.</p></li>
+<li><p>Check that the global allocator is empty at some suitable point, such as
+right before program shutdown.</p></li>
+<li><p>If it is not empty, review the above allocation bugs.</p></li>
+</ol>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">//1</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">BufferAllocator</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RootAllocator</span><span class="p">();</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">AtomicInteger</span><span class="w"> </span><span class="n">childNumber</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AtomicInteger</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">...</span>
+<span class="c1">//2</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">BufferAllocator</span><span class="w"> </span><span class="nf">getChildAllocator</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">allocator</span><span class="p">.</span><span class="na">newChildAllocator</span><span class="p">(</span><span class="n">nextChildName</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">Long</span><span class="p">.</span><span class="na">MAX_VALUE</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="p">...</span>
+<span class="c1">//3</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">nextChildName</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">"Allocator-Child-"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">childNumber</span><span class="p">.</span><span class="na">incrementAndGet</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="p">...</span>
+<span class="c1">//4: Business code</span>
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">BufferAllocator</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GlobalAllocator</span><span class="p">.</span><span class="na">getChildAllocator</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+<span class="p">...</span>
+<span class="c1">//5</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">checkGlobalCleanUpResources</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">allocator</span><span class="p">.</span><span class="na">getChildAllocators</span><span class="p">().</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalStateException</span><span class="p">(...);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">allocator</span><span class="p">.</span><span class="na">getAllocatedMemory</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalStateException</span><span class="p">(...);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="arrow-memory-in-depth">
+<h2>Arrow Memory In-Depth<a class="headerlink" href="#arrow-memory-in-depth" title="Link to this heading">¶</a></h2>
+<section id="design-principles">
+<h3>Design Principles<a class="headerlink" href="#design-principles" title="Link to this heading">¶</a></h3>
+<p>Arrow’s memory model is based on the following basic concepts:</p>
+<ul class="simple">
+<li><p>Memory can be allocated up to some limit. That limit could be a real
+limit (OS/JVM) or a locally imposed limit.</p></li>
+<li><p>Allocation operates in two phases: accounting then actual allocation.
+Allocation could fail at either point.</p></li>
+<li><p>Allocation failure should be recoverable. In all cases, the Allocator
+infrastructure should expose memory allocation failures (OS or
+internal limit-based) as <code class="docutils literal notranslate"><span class="pre">OutOfMemoryException</span></code>s.</p></li>
+<li><p>Any allocator can reserve memory when created. This memory shall be
+held such that this allocator will always be able to allocate that
+amount of memory.</p></li>
+<li><p>A particular application component should work to use a local
+allocator to understand local memory usage and better debug memory
+leaks.</p></li>
+<li><p>The same physical memory can be shared by multiple allocators and the
+allocator must provide an accounting paradigm for this purpose.</p></li>
+</ul>
+</section>
+<section id="reserving-memory">
+<h3>Reserving Memory<a class="headerlink" href="#reserving-memory" title="Link to this heading">¶</a></h3>
+<p>Arrow provides two different ways to reserve memory:</p>
+<ul class="simple">
+<li><p>BufferAllocator accounting reservations: When a new allocator (other
+than the <code class="docutils literal notranslate"><span class="pre">RootAllocator</span></code>) is initialized, it can set aside memory
+that it will keep locally for its lifetime. This is memory that will
+never be released back to its parent allocator until the allocator is
+closed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AllocationReservation</span></code> via BufferAllocator.newReservation():
+Allows a short-term preallocation strategy so that a particular
+subsystem can ensure future memory is available to support a
+particular request.</p></li>
+</ul>
+</section>
+<section id="reference-counting-details">
+<h3>Reference Counting Details<a class="headerlink" href="#reference-counting-details" title="Link to this heading">¶</a></h3>
+<p>Typically, the ReferenceManager implementation used is an instance of <a class="reference external" href="https://arrow.apache.org/java/current/reference/org.apache.arrow.memory.core/org/apache/arrow/memory/BufferLedger.html">BufferLedger</a>.
+A BufferLedger is a ReferenceManager that also maintains the relationship between an <code class="docutils literal notranslate"><span class="pre">AllocationManager</span></code>,
+a <code class="docutils literal notranslate"><span class="pre">BufferAllocator</span></code> and one or more individual <code class="docutils literal notranslate"><span class="pre">ArrowBuf</span></code>s</p>
+<p>All ArrowBufs (direct or sliced) related to a single BufferLedger/BufferAllocator combination
+share the same reference count and either all will be valid or all will be invalid.
+For simplicity of accounting, we treat that memory as being used by one
+of the BufferAllocators associated with the memory. When that allocator
+releases its claim on that memory, the memory ownership is then moved to
+another BufferLedger belonging to the same AllocationManager.</p>
+</section>
+<section id="allocation-details">
+<h3>Allocation Details<a class="headerlink" href="#allocation-details" title="Link to this heading">¶</a></h3>
+<p>There are several Allocator types in Arrow Java:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BufferAllocator</span></code> - The public interface application users should be leveraging</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BaseAllocator</span></code> - The base implementation of memory allocation, contains the meat of the Arrow allocator implementation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RootAllocator</span></code> - The root allocator. Typically only one created for a JVM. It serves as the parent/ancestor for child allocators</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ChildAllocator</span></code> - A child allocator that derives from the root allocator</p></li>
+</ul>
+<p>Many BufferAllocators can reference the same piece of physical memory at the same
+time. It is the AllocationManager’s responsibility to ensure that in this situation,
+all memory is accurately accounted for from the Root’s perspective
+and also to ensure that the memory is correctly released once all
+BufferAllocators have stopped using that memory.</p>
+<p>For simplicity of accounting, we treat that memory as being used by one
+of the BufferAllocators associated with the memory. When that allocator
+releases its claim on that memory, the memory ownership is then moved to
+another BufferLedger belonging to the same AllocationManager. Note that
+because a ArrowBuf.release() is what actually causes memory ownership
+transfer to occur, we always proceed with ownership transfer (even if
+that violates an allocator limit). It is the responsibility of the
+application owning a particular allocator to frequently confirm whether
+the allocator is over its memory limit (BufferAllocator.isOverLimit())
+and if so, attempt to aggressively release memory to ameliorate the
+situation.</p>
+</section>
+<section id="object-hierarchy">
+<h3>Object Hierarchy<a class="headerlink" href="#object-hierarchy" title="Link to this heading">¶</a></h3>
+<p>There are two main ways that someone can look at the object hierarchy
+for Arrow’s memory management scheme. The first is a memory based
+perspective as below:</p>
+<section id="memory-perspective">
+<h4>Memory Perspective<a class="headerlink" href="#memory-perspective" title="Link to this heading">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+ AllocationManager
+|
+|-- UnsignedDirectLittleEndian (One per AllocationManager)
+|
+|-+ BufferLedger 1 ==&gt; Allocator A (owning)
+| ` - ArrowBuf 1
+|-+ BufferLedger 2 ==&gt; Allocator B (non-owning)
+| ` - ArrowBuf 2
+|-+ BufferLedger 3 ==&gt; Allocator C (non-owning)
+  | - ArrowBuf 3
+  | - ArrowBuf 4
+  ` - ArrowBuf 5
+</pre></div>
+</div>
+<p>In this picture, a piece of memory is owned by an allocator manager. An
+allocator manager is responsible for that piece of memory no matter
+which allocator(s) it is working with. An allocator manager will have
+relationships with a piece of raw memory (via its reference to
+UnsignedDirectLittleEndian) as well as references to each
+BufferAllocator it has a relationship to.</p>
+</section>
+<section id="allocator-perspective">
+<h4>Allocator Perspective<a class="headerlink" href="#allocator-perspective" title="Link to this heading">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+ RootAllocator
+|-+ ChildAllocator 1
+| | - ChildAllocator 1.1
+| ` ...
+|
+|-+ ChildAllocator 2
+|-+ ChildAllocator 3
+| |
+| |-+ BufferLedger 1 ==&gt; AllocationManager 1 (owning) ==&gt; UDLE
+| | `- ArrowBuf 1
+| `-+ BufferLedger 2 ==&gt; AllocationManager 2 (non-owning)==&gt; UDLE
+|   `- ArrowBuf 2
+|
+|-+ BufferLedger 3 ==&gt; AllocationManager 1 (non-owning)==&gt; UDLE
+| ` - ArrowBuf 3
+|-+ BufferLedger 4 ==&gt; AllocationManager 2 (owning) ==&gt; UDLE
+  | - ArrowBuf 4
+  | - ArrowBuf 5
+  ` - ArrowBuf 6
+</pre></div>
+</div>
+<p>In this picture, a RootAllocator owns three ChildAllocators. The first
+ChildAllocator (ChildAllocator 1) owns a subsequent ChildAllocator.
+ChildAllocator has two BufferLedgers/AllocationManager references.
+Coincidentally, each of these AllocationManager’s is also associated
+with the RootAllocator. In this case, one of the these
+AllocationManagers is owned by ChildAllocator 3 (AllocationManager 1)
+while the other AllocationManager (AllocationManager 2) is
+owned/accounted for by the RootAllocator. Note that in this scenario,
+ArrowBuf 1 is sharing the underlying memory as ArrowBuf 3. However the
+subset of that memory (e.g. through slicing) might be different. Also
+note that ArrowBuf 2 and ArrowBuf 4, 5 and 6 are also sharing the same
+underlying memory. Also note that ArrowBuf 4, 5 and 6 all share the same
+reference count and fate.</p>
+</section>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="vector.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">ValueVector</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="developers/development.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Development Guidelines</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Apache Arrow Developers
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Memory Management</a><ul>
+<li><a class="reference internal" href="#memory-basics">Memory Basics</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li><a class="reference internal" href="#arrowbuf">ArrowBuf</a><ul>
+<li><a class="reference internal" href="#why-arrow-uses-direct-memory">Why Arrow Uses Direct Memory</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bufferallocator">BufferAllocator</a></li>
+<li><a class="reference internal" href="#reference-counting">Reference counting</a></li>
+<li><a class="reference internal" href="#development-guidelines">Development Guidelines</a></li>
+<li><a class="reference internal" href="#debugging-memory-leaks-allocation">Debugging Memory Leaks/Allocation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#arrow-memory-in-depth">Arrow Memory In-Depth</a><ul>
+<li><a class="reference internal" href="#design-principles">Design Principles</a></li>
+<li><a class="reference internal" href="#reserving-memory">Reserving Memory</a></li>
+<li><a class="reference internal" href="#reference-counting-details">Reference Counting Details</a></li>
+<li><a class="reference internal" href="#allocation-details">Allocation Details</a></li>
+<li><a class="reference internal" href="#object-hierarchy">Object Hierarchy</a><ul>
+<li><a class="reference internal" href="#memory-perspective">Memory Perspective</a></li>
+<li><a class="reference internal" href="#allocator-perspective">Allocator Perspective</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=a103329b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    </body>
+</html>

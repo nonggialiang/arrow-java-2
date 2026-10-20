@@ -1,0 +1,638 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Tabular Data" href="vector_schema_root.html" /><link rel="prev" title="Memory Management" href="memory.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>ValueVector - arrow-java 20.0.0-SNAPSHOT documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">arrow-java 20.0.0-SNAPSHOT documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">arrow-java 20.0.0-SNAPSHOT documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstartguide.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">High-Level Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Java Modules</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="developers/index.html">Java Development</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Java Development</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="developers/building.html">Building Arrow Java</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers/development.html">Development Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">Memory Management</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">ValueVector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vector_schema_root.html">Tabular Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="table.html">Table</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipc.html">Reading/Writing IPC formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">Java Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flight.html">Arrow Flight RPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flight_sql.html">Arrow Flight SQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flight_sql_jdbc_driver.html">Arrow Flight SQL JDBC Driver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="substrait.html">Substrait</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdata.html">C Data Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jdbc.html">Arrow JDBC Adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference (javadoc)</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arrow.apache.org/cookbook/java/">Cookbook</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/vector.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="valuevector">
+<h1>ValueVector<a class="headerlink" href="#valuevector" title="Link to this heading">¶</a></h1>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueVector</span></code> interface (which called Array in C++ implementation and
+the <a class="reference external" href="https://arrow.apache.org/docs/format/Columnar.html" title="(in Apache Arrow v26.0.0)"><span class="xref std std-doc">the specification</span></a>) is an abstraction that is used to store a
+sequence of values having the same type in an individual column. Internally, those values are
+represented by one or several buffers, the number and meaning of which depend on the vector’s data type.</p>
+<p>There are concrete subclasses of <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueVector</span></code> for each primitive data type
+and nested type described in the specification. There are a few differences in naming
+with the type names described in the specification:
+Table with non-intuitive names (BigInt = 64 bit integer, etc).</p>
+<p>It is important that vector is allocated before attempting to read or write,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ValueVector</span></code> “should” strive to guarantee this order of operation:
+create &gt; allocate &gt; mutate &gt; set value count &gt; access &gt; clear (or allocate to start the process over).
+We will go through a concrete example to demonstrate each operation in the next section.</p>
+<section id="vector-life-cycle">
+<h2>Vector Life Cycle<a class="headerlink" href="#vector-life-cycle" title="Link to this heading">¶</a></h2>
+<p>As discussed above, each vector goes through several steps in its life cycle,
+and each step is triggered by a vector operation. In particular, we have the following vector operations:</p>
+<p>1. <strong>Vector creation</strong>: we create a new vector object by, for example, the vector constructor.
+The following code creates a new <code class="docutils literal notranslate"><span class="pre">IntVector</span></code> by the constructor:</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="n">RootAllocator</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RootAllocator</span><span class="p">(</span><span class="n">Long</span><span class="p">.</span><span class="na">MAX_VALUE</span><span class="p">);</span>
+<span class="p">...</span>
+<span class="n">IntVector</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IntVector</span><span class="p">(</span><span class="s">"int vector"</span><span class="p">,</span><span class="w"> </span><span class="n">allocator</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>By now, a vector object is created. However, no underlying memory has been allocated, so we need the
+following step.</p>
+<p>2. <strong>Vector allocation</strong>: in this step, we allocate memory for the vector. For most vectors, we
+have two options: 1) if we know the maximum vector capacity, we can specify it by calling the
+<code class="docutils literal notranslate"><span class="pre">allocateNew(int)</span></code> method; 2) otherwise, we should call the <code class="docutils literal notranslate"><span class="pre">allocateNew()</span></code> method, and  a default
+capacity will be allocated for it. For our running example, we assume that the vector capacity never
+exceeds 10:</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="n">vector</span><span class="p">.</span><span class="na">allocateNew</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>3. <strong>Vector mutation</strong>: now we can populate the vector with values we desire. For all vectors, we can populate
+vector values through vector writers (An example will be given in the next section). For primitive types,
+we can also mutate the vector by the set methods. There are two classes of set methods: 1) if we can
+be sure the vector has enough capacity, we can call the <code class="docutils literal notranslate"><span class="pre">set(index,</span> <span class="pre">value)</span></code> method. 2) if we are not sure
+about the vector capacity, we should call the <code class="docutils literal notranslate"><span class="pre">setSafe(index,</span> <span class="pre">value)</span></code> method, which will automatically
+take care of vector reallocation, if the capacity is not sufficient. For our running example, we know the
+vector has enough capacity, so we can call</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="n">vector</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="cm">/*index*/</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="cm">/*value*/</span><span class="mi">25</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>4. <strong>Set value count</strong>: for this step, we set the value count of the vector by calling the
+<code class="docutils literal notranslate"><span class="pre">setValueCount(int)</span></code> method:</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="n">vector</span><span class="p">.</span><span class="na">setValueCount</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>After this step, the vector enters an immutable state. In other words, we should no longer mutate it.
+(Unless we reuse the vector by allocating it again. This will be discussed shortly.)</p>
+<p>5. <strong>Vector access</strong>: it is time to access vector values. Similarly, we have two options to access values:
+1) get methods and 2) vector reader. Vector reader works for all types of vectors, while get methods are
+only available for primitive vectors. A concrete example for vector reader will be given in the next section.
+Below is an example of vector access by get method:</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span><span class="w">  </span><span class="c1">// value == 25</span>
+</pre></div>
+</div>
+<p>6. <strong>Vector clear</strong>: when we are done with the vector, we should clear it to release its memory. This is done by
+calling the <code class="docutils literal notranslate"><span class="pre">close()</span></code> method:</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="n">vector</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Some points to note about the steps above:</p>
+<ul class="simple">
+<li><p>The steps are not necessarily performed in a linear sequence. Instead, they can be in a loop. For example,
+when a vector enters the access step, we can also go back to the vector mutation step, and then set value
+count, access vector, and so on.</p></li>
+<li><p>We should try to make sure the above steps are carried out in order. Otherwise, the vector
+may be in an undefined state, and some unexpected behavior may occur. However, this restriction
+is not strict. That means it is possible that we violates the order above, but still get
+correct results.</p></li>
+<li><p>When mutating vector values through set methods, we should prefer <code class="docutils literal notranslate"><span class="pre">set(index,</span> <span class="pre">value)</span></code> methods to
+<code class="docutils literal notranslate"><span class="pre">setSafe(index,</span> <span class="pre">value)</span></code> methods whenever possible, to avoid unnecessary performance overhead of handling
+vector capacity.</p></li>
+<li><p>All vectors implement the <code class="docutils literal notranslate"><span class="pre">AutoCloseable</span></code> interface. So they must be closed explicitly when they are
+no longer used, to avoid resource leak. To make sure of this, it is recommended to place vector related operations
+into a try-with-resources block.</p></li>
+<li><p>For fixed width vectors (e.g. IntVector), we can set values at different indices in arbitrary orders.
+For variable width vectors (e.g. VarCharVector), however, we must set values in non-decreasing order of the
+indices. Otherwise, the values after the set position will become invalid. For example, suppose we use the
+following statements to populate a variable width vector:</p></li>
+</ul>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="n">VarCharVector</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">VarCharVector</span><span class="p">(</span><span class="s">"vector"</span><span class="p">,</span><span class="w"> </span><span class="n">allocator</span><span class="p">);</span>
+<span class="n">vector</span><span class="p">.</span><span class="na">allocateNew</span><span class="p">();</span>
+<span class="n">vector</span><span class="p">.</span><span class="na">setSafe</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"zero"</span><span class="p">);</span>
+<span class="n">vector</span><span class="p">.</span><span class="na">setSafe</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"one"</span><span class="p">);</span>
+<span class="p">...</span>
+<span class="n">vector</span><span class="p">.</span><span class="na">setSafe</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="s">"nine"</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Then we set the value at position 5 again:</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="n">vector</span><span class="p">.</span><span class="na">setSafe</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="s">"5"</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>After that, the values at positions 6, 7, 8, and 9 of the vector will become invalid.</p>
+</section>
+<section id="building-valuevector">
+<h2>Building ValueVector<a class="headerlink" href="#building-valuevector" title="Link to this heading">¶</a></h2>
+<p>Note that the current implementation doesn’t enforce the rule that Arrow objects are immutable.
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ValueVector</span></code> instances could be created directly by using new keyword, there are
+set/setSafe APIs and concrete subclasses of FieldWriter for populating values.</p>
+<p>For example, the code below shows how to build a <code class="xref py py-class docutils literal notranslate"><span class="pre">BigIntVector</span></code>, in this case, we build a
+vector of the range 0 to 7 where the element that should hold the fourth value is nulled</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">BufferAllocator</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RootAllocator</span><span class="p">(</span><span class="n">Long</span><span class="p">.</span><span class="na">MAX_VALUE</span><span class="p">);</span>
+<span class="w">  </span><span class="n">BigIntVector</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BigIntVector</span><span class="p">(</span><span class="s">"vector"</span><span class="p">,</span><span class="w"> </span><span class="n">allocator</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">allocateNew</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">setNull</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">);</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">);</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">setValueCount</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span><span class="w"> </span><span class="c1">// this will finalizes the vector by convention.</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">BigIntVector</span></code> holds two ArrowBufs. The first buffer holds the null bitmap, which consists
+here of a single byte with the bits 1|1|1|1|0|1|1|1 (the bit is 1 if the value is non-null).
+The second buffer contains all the above values. As the fourth entry is null, the value at that position
+in the buffer is undefined. Note compared with set API, setSafe API would check value capacity before setting
+values and reallocate buffers if necessary.</p>
+<p>Here is how to build a vector using writer</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">BigIntVector</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BigIntVector</span><span class="p">(</span><span class="s">"vector"</span><span class="p">,</span><span class="w"> </span><span class="n">allocator</span><span class="p">);</span>
+<span class="w">  </span><span class="n">BigIntWriter</span><span class="w"> </span><span class="n">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BigIntWriterImpl</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">setPosition</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">writeBigInt</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">setPosition</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">writeBigInt</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">setPosition</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">writeBigInt</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">// writer.setPosition(3) is not called which means the fourth value is null.</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">setPosition</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">writeBigInt</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">setPosition</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">writeBigInt</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">setPosition</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">writeBigInt</span><span class="p">(</span><span class="mi">7</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">setPosition</span><span class="p">(</span><span class="mi">7</span><span class="p">);</span>
+<span class="w">  </span><span class="n">writer</span><span class="p">.</span><span class="na">writeBigInt</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>There are get API and concrete subclasses of <code class="xref py py-class docutils literal notranslate"><span class="pre">FieldReader</span></code> for accessing vector values, what needs
+to be declared is that writer/reader is not as efficient as direct access</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="c1">// access via get API</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="na">getValueCount</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">vector</span><span class="p">.</span><span class="na">isNull</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">vector</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// access via reader</span>
+<span class="n">BigIntReader</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="na">getReader</span><span class="p">();</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="na">getValueCount</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">reader</span><span class="p">.</span><span class="na">setPosition</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">reader</span><span class="p">.</span><span class="na">isSet</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">reader</span><span class="p">.</span><span class="na">readLong</span><span class="p">());</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="building-listvector">
+<h2>Building ListVector<a class="headerlink" href="#building-listvector" title="Link to this heading">¶</a></h2>
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">ListVector</span></code> is a vector that holds a list of values for each index. Working with one you need to handle the same steps as mentioned above (create &gt; allocate &gt; mutate &gt; set value count &gt; access &gt; clear), but the details of how you accomplish this are slightly different since you need to both create the vector and set the list of values for each index.</p>
+<p>For example, the code below shows how to build a <code class="xref py py-class docutils literal notranslate"><span class="pre">ListVector</span></code> of int’s using the writer <code class="xref py py-class docutils literal notranslate"><span class="pre">UnionListWriter</span></code>. We build a vector from 0 to 9 and each index contains a list with values [[0, 0, 0, 0, 0], [0, 1, 2, 3, 4], [0, 2, 4, 6, 8], …, [0, 9, 18, 27, 36]]. List values can be added in any order so writing a list such as [3, 1, 2] would be just as valid.</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">BufferAllocator</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RootAllocator</span><span class="p">(</span><span class="n">Long</span><span class="p">.</span><span class="na">MAX_VALUE</span><span class="p">);</span>
+<span class="w">  </span><span class="n">ListVector</span><span class="w"> </span><span class="n">listVector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ListVector</span><span class="p">.</span><span class="na">empty</span><span class="p">(</span><span class="s">"vector"</span><span class="p">,</span><span class="w"> </span><span class="n">allocator</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">UnionListWriter</span><span class="w"> </span><span class="n">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listVector</span><span class="p">.</span><span class="na">getWriter</span><span class="p">();</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">     </span><span class="n">writer</span><span class="p">.</span><span class="na">startList</span><span class="p">();</span>
+<span class="w">     </span><span class="n">writer</span><span class="p">.</span><span class="na">setPosition</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">     </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="n">writer</span><span class="p">.</span><span class="na">writeInt</span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<span class="w">     </span><span class="p">}</span>
+<span class="w">     </span><span class="n">writer</span><span class="p">.</span><span class="na">setValueCount</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+<span class="w">     </span><span class="n">writer</span><span class="p">.</span><span class="na">endList</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">listVector</span><span class="p">.</span><span class="na">setValueCount</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">ListVector</span></code> values can be accessed either through the get API or through the reader class <code class="xref py py-class docutils literal notranslate"><span class="pre">UnionListReader</span></code>. To read all the values, first enumerate through the indexes, and then enumerate through the inner list values.</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="c1">// access via get API</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">listVector</span><span class="p">.</span><span class="na">getValueCount</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">listVector</span><span class="p">.</span><span class="na">isNull</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span><span class="w"> </span><span class="n">elements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="n">listVector</span><span class="p">.</span><span class="na">getObject</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">       </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Integer</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">elements</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">           </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
+<span class="w">       </span><span class="p">}</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// access via reader</span>
+<span class="n">UnionListReader</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listVector</span><span class="p">.</span><span class="na">getReader</span><span class="p">();</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">listVector</span><span class="p">.</span><span class="na">getValueCount</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">reader</span><span class="p">.</span><span class="na">setPosition</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">   </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">reader</span><span class="p">.</span><span class="na">next</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">IntReader</span><span class="w"> </span><span class="n">intReader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="na">reader</span><span class="p">();</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">intReader</span><span class="p">.</span><span class="na">isSet</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">           </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">intReader</span><span class="p">.</span><span class="na">readInteger</span><span class="p">());</span>
+<span class="w">       </span><span class="p">}</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="dictionary-encoding">
+<h2>Dictionary Encoding<a class="headerlink" href="#dictionary-encoding" title="Link to this heading">¶</a></h2>
+<p>Dictionary encoding is a form of compression where values of one type are replaced by values of a smaller type: an array of ints replacing an array of strings is a common example. The mapping between the original values and the replacements is held in a ‘dictionary’. Since the dictionary needs only one copy of each of the longer values, the combination of the dictionary and the array of smaller values may use less memory. The more repetitive the original data, the greater the savings.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">FieldVector</span></code> can be dictionary encoded for performance or improved memory efficiency. Nearly any type of vector might be encoded if there are many values, but few unique values.</p>
+<p>There are a few steps involved in the encoding process:</p>
+<ol class="arabic simple">
+<li><p>Create a regular, un-encoded vector and populate it</p></li>
+<li><p>Create a dictionary vector of the same type as the un-encoded vector. This vector must have the same values, but each unique value in the un-encoded vector need appear here only once.</p></li>
+<li><p>Create a <code class="docutils literal notranslate"><span class="pre">Dictionary</span></code>. It will contain the dictionary vector, plus a <code class="docutils literal notranslate"><span class="pre">DictionaryEncoding</span></code> object that holds the encoding’s metadata and settings values.</p></li>
+<li><p>Create a <code class="docutils literal notranslate"><span class="pre">DictionaryEncoder</span></code>.</p></li>
+<li><p>Call the encode() method on the <code class="docutils literal notranslate"><span class="pre">DictionaryEncoder</span></code> to produce an encoded version of the original vector.</p></li>
+<li><p>(Optional) Call the decode() method on the encoded vector to re-create the original values.</p></li>
+</ol>
+<p>The encoded values will be integers. Depending on how many unique values you have, you can use <code class="docutils literal notranslate"><span class="pre">TinyIntVector</span></code>, <code class="docutils literal notranslate"><span class="pre">SmallIntVector</span></code>, <code class="docutils literal notranslate"><span class="pre">IntVector</span></code>, or <code class="docutils literal notranslate"><span class="pre">BigIntVector</span></code> to hold them. You specify the type when you create your <code class="docutils literal notranslate"><span class="pre">DictionaryEncoding</span></code> instance. You might wonder where those integers come from: the dictionary vector is a regular vector, so the value’s index position in that vector is used as its encoded value.</p>
+<p>Another critical attribute in <code class="docutils literal notranslate"><span class="pre">DictionaryEncoding</span></code> is the id. It’s important to understand how the id is used, so we cover that later in this section.</p>
+<p>This result will be a new vector (for example, an <code class="docutils literal notranslate"><span class="pre">IntVector</span></code>) that can act in place of the original vector (for example, a <code class="docutils literal notranslate"><span class="pre">VarCharVector</span></code>). When you write the data in arrow format, it is both the new <code class="docutils literal notranslate"><span class="pre">IntVector</span></code> plus the dictionary that is written: you will need the dictionary later to retrieve the original values.</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="c1">// 1. create a vector for the un-encoded data and populate it</span>
+<span class="n">VarCharVector</span><span class="w"> </span><span class="n">unencoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">VarCharVector</span><span class="p">(</span><span class="s">"unencoded"</span><span class="p">,</span><span class="w"> </span><span class="n">allocator</span><span class="p">);</span>
+<span class="c1">// now put some data in it before continuing</span>
+
+<span class="c1">// 2. create a vector to hold the dictionary and populate it</span>
+<span class="n">VarCharVector</span><span class="w"> </span><span class="n">dictionaryVector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">VarCharVector</span><span class="p">(</span><span class="s">"dictionary"</span><span class="p">,</span><span class="w"> </span><span class="n">allocator</span><span class="p">);</span>
+
+<span class="c1">// 3. create a dictionary object</span>
+<span class="n">Dictionary</span><span class="w"> </span><span class="n">dictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="p">(</span><span class="n">dictionaryVector</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DictionaryEncoding</span><span class="p">(</span><span class="mi">1L</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">));</span>
+
+<span class="c1">// 4. create a dictionary encoder</span>
+<span class="n">DictionaryEncoder</span><span class="w"> </span><span class="n">encoder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DictionaryEncoder</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span><span class="w"> </span><span class="n">allocator</span><span class="p">);</span>
+
+<span class="c1">// 5. encode the data</span>
+<span class="n">IntVector</span><span class="w"> </span><span class="n">encoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">IntVector</span><span class="p">)</span><span class="w"> </span><span class="n">encoder</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="n">unencoded</span><span class="p">);</span>
+
+<span class="c1">// 6. re-create an un-encoded version from the encoded vector</span>
+<span class="n">VarCharVector</span><span class="w"> </span><span class="n">decoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">VarCharVector</span><span class="p">)</span><span class="w"> </span><span class="n">encoder</span><span class="p">.</span><span class="na">decode</span><span class="p">(</span><span class="n">encoded</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>One thing we haven’t discussed is how to create the dictionary vector from the original un-encoded values. That is left to the library user since a custom method will likely be more efficient than a general utility. Since the dictionary vector is just a normal vector, you can populate its values with the standard APIs.</p>
+<p>Finally, you can package a number of dictionaries together, which is useful if you’re working with a <code class="docutils literal notranslate"><span class="pre">VectorSchemaRoot</span></code> with several dictionary-encoded vectors. This is done using an object called a <code class="docutils literal notranslate"><span class="pre">DictionaryProvider</span></code>. as shown in the example below. Note that we don’t put the dictionary vectors in the same <code class="docutils literal notranslate"><span class="pre">VectorSchemaRoot</span></code> as the data vectors, as they will generally have fewer values.</p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="n">DictionaryProvider</span><span class="p">.</span><span class="na">MapDictionaryProvider</span><span class="w"> </span><span class="n">provider</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="n">DictionaryProvider</span><span class="p">.</span><span class="na">MapDictionaryProvider</span><span class="p">();</span>
+
+<span class="n">provider</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">dictionary</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">DictionaryProvider</span></code> is simply a map of identifiers to <code class="docutils literal notranslate"><span class="pre">Dictionary</span></code> objects, where each identifier is a long value. In the above code you will see it as the first argument to the <code class="docutils literal notranslate"><span class="pre">DictionaryEncoding</span></code> constructor.</p>
+<p>This is where the <code class="docutils literal notranslate"><span class="pre">DictionaryEncoding</span></code>’s ‘id’ attribute comes in. This value is used to connect dictionaries to instances of <code class="docutils literal notranslate"><span class="pre">VectorSchemaRoot</span></code>, using a <code class="docutils literal notranslate"><span class="pre">DictionaryProvider</span></code>.  Here’s how that works:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">VectorSchemaRoot</span></code> has a <code class="docutils literal notranslate"><span class="pre">Schema</span></code> object containing a list of <code class="docutils literal notranslate"><span class="pre">Field</span></code> objects.</p></li>
+<li><p>The field has an attribute called ‘dictionary’, but it holds a <code class="docutils literal notranslate"><span class="pre">DictionaryEncoding</span></code> rather than a <code class="docutils literal notranslate"><span class="pre">Dictionary</span></code></p></li>
+<li><p>As mentioned, the <code class="docutils literal notranslate"><span class="pre">DictionaryProvider</span></code> holds dictionaries indexed by a long value. This value is the id from your <code class="docutils literal notranslate"><span class="pre">DictionaryEncoding</span></code>.</p></li>
+<li><p>To retrieve the dictionary for a vector in a <code class="docutils literal notranslate"><span class="pre">VectorSchemaRoot</span></code>, you get the field associated with the vector, get its dictionary attribute, and use that object’s id to look up the correct dictionary in the provider.</p></li>
+</ul>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="c1">// create the encoded vector, the Dictionary and DictionaryProvider as discussed above</span>
+
+<span class="c1">// Create a VectorSchemaRoot with one encoded vector</span>
+<span class="n">VectorSchemaRoot</span><span class="w"> </span><span class="n">vsr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">VectorSchemaRoot</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">encoded</span><span class="p">));</span>
+
+<span class="c1">// now we want to decode our vector, so we retrieve its dictionary from the provider</span>
+<span class="n">Field</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vsr</span><span class="p">.</span><span class="na">getField</span><span class="p">(</span><span class="n">encoded</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">DictionaryEncoding</span><span class="w"> </span><span class="n">encoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="na">getDictionary</span><span class="p">();</span>
+<span class="n">Dictionary</span><span class="w"> </span><span class="n">dictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">provider</span><span class="p">.</span><span class="na">lookup</span><span class="p">(</span><span class="n">encoding</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>As you can see, a <code class="docutils literal notranslate"><span class="pre">DictionaryProvider</span></code> is handy for managing the dictionaries associated with a <code class="docutils literal notranslate"><span class="pre">VectorSchemaRoot</span></code>. More importantly, it helps package the dictionaries for a <code class="docutils literal notranslate"><span class="pre">VectorSchemaRoot</span></code> when it’s written. The classes <code class="docutils literal notranslate"><span class="pre">ArrowFileWriter</span></code> and <code class="docutils literal notranslate"><span class="pre">ArrowStreamWriter</span></code> both accept an optional <code class="docutils literal notranslate"><span class="pre">DictionaryProvider</span></code> argument for that purpose. You can find example code for writing dictionaries in the documentation for (<a class="reference internal" href="ipc.html"><span class="doc">Reading/Writing IPC formats</span></a>). <code class="docutils literal notranslate"><span class="pre">ArrowReader</span></code> and its subclasses also implement the <code class="docutils literal notranslate"><span class="pre">DictionaryProvider</span></code> interface, so you can retrieve the actual dictionaries when reading a file.</p>
+</section>
+<section id="slicing">
+<h2>Slicing<a class="headerlink" href="#slicing" title="Link to this heading">¶</a></h2>
+<p>Similar with C++ implementation, it is possible to make zero-copy slices of vectors to obtain a vector
+referring to some logical sub-sequence of the data through <code class="xref py py-class docutils literal notranslate"><span class="pre">TransferPair</span></code></p>
+<div class="highlight-Java notranslate"><div class="highlight"><pre><span></span><span class="n">IntVector</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IntVector</span><span class="p">(</span><span class="s">"intVector"</span><span class="p">,</span><span class="w"> </span><span class="n">allocator</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">vector</span><span class="p">.</span><span class="na">setSafe</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">vector</span><span class="p">.</span><span class="na">setValueCount</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+
+<span class="n">TransferPair</span><span class="w"> </span><span class="n">tp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="na">getTransferPair</span><span class="p">(</span><span class="n">allocator</span><span class="p">);</span>
+<span class="n">tp</span><span class="p">.</span><span class="na">splitAndTransfer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span>
+<span class="n">IntVector</span><span class="w"> </span><span class="n">sliced</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">IntVector</span><span class="p">)</span><span class="w"> </span><span class="n">tp</span><span class="p">.</span><span class="na">getTo</span><span class="p">();</span>
+<span class="c1">// In this case, the vector values are [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] and the sliceVector values are [0, 1, 2, 3, 4].</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="vector_schema_root.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Tabular Data</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="memory.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Memory Management</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Apache Arrow Developers
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">ValueVector</a><ul>
+<li><a class="reference internal" href="#vector-life-cycle">Vector Life Cycle</a></li>
+<li><a class="reference internal" href="#building-valuevector">Building ValueVector</a></li>
+<li><a class="reference internal" href="#building-listvector">Building ListVector</a></li>
+<li><a class="reference internal" href="#dictionary-encoding">Dictionary Encoding</a></li>
+<li><a class="reference internal" href="#slicing">Slicing</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=a103329b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    </body>
+</html>
