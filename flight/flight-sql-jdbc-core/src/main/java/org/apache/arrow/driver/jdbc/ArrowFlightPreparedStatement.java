@@ -19,7 +19,6 @@ package org.apache.arrow.driver.jdbc;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-
 import org.apache.arrow.driver.jdbc.client.ArrowFlightSqlClientHandler;
 import org.apache.arrow.flight.CallOption;
 import org.apache.arrow.flight.FlightInfo;

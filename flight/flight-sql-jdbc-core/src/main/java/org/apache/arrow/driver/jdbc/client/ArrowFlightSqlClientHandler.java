@@ -137,11 +137,11 @@ public final class ArrowFlightSqlClientHandler implements AutoCloseable {
   }
 
   private CallOption[] getWithExtraOptions(List<CallOption> extraCallOptions) {
-      List<CallOption> combinedOptions = new ArrayList<>(options);
-      if (extraCallOptions != null) {
-          combinedOptions.addAll(extraCallOptions);
-      }
-      return combinedOptions.toArray(new CallOption[0]);
+    List<CallOption> combinedOptions = new ArrayList<>(options);
+    if (extraCallOptions != null) {
+      combinedOptions.addAll(extraCallOptions);
+    }
+    return combinedOptions.toArray(new CallOption[0]);
   }
 
   /**
@@ -360,14 +360,14 @@ public final class ArrowFlightSqlClientHandler implements AutoCloseable {
     LOGGER.debug("Suppressed error {}", operationDescription, fre);
   }
 
-    /**
-     * Raw ticket DoGet for scrollable (server-side paged) result sets — pages are
-     * addressed by re-presenting the endpoint STREAM ticket with paging headers. Extra options
-     * (auth/session headers come from the handler-wide options) are appended per call.
-     */
-    public FlightStream getStream(Ticket ticket, List<CallOption> extraCallOptions) {
-        return sqlClient.getStream(ticket, getWithExtraOptions(extraCallOptions));
-    }
+  /**
+   * Raw ticket DoGet for scrollable (server-side paged) result sets — pages are addressed by
+   * re-presenting the endpoint STREAM ticket with paging headers. Extra options (auth/session
+   * headers come from the handler-wide options) are appended per call.
+   */
+  public FlightStream getStream(Ticket ticket, List<CallOption> extraCallOptions) {
+    return sqlClient.getStream(ticket, getWithExtraOptions(extraCallOptions));
+  }
 
   /** A prepared statement handler. */
   public interface PreparedStatement extends AutoCloseable {

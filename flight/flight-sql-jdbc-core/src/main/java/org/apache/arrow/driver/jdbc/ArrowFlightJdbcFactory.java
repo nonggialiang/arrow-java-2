@@ -118,21 +118,28 @@ public class ArrowFlightJdbcFactory implements AvaticaFactory {
     headers.insert(ArrowFlightConnectionConfigImpl.HEADER_FG_QUERY_ID, statement.handle.toString());
     // if connection with params x-fg-result-set-type=scroll
     boolean scrollable =
-            statement.connection.getClientInfo().getProperty(ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE)
-                    .equalsIgnoreCase(ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE_SCROLL);
+        statement
+            .connection
+            .getClientInfo()
+            .getProperty(ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE)
+            .equalsIgnoreCase(ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE_SCROLL);
     // if statement created with params resultSetType=TYPE_SCROLL_INSENSITIVE
     if (statement.getResultSetType() == ResultSet.TYPE_SCROLL_INSENSITIVE) {
-        scrollable = true;
-        headers.insert(ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE,
-                ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE_SCROLL);
+      scrollable = true;
+      headers.insert(
+          ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE,
+          ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE_SCROLL);
     }
     try {
-        info = ((ArrowFlightInfoStatement) statement).executeFlightInfoQuery(List.of(new HeaderCallOption(headers)));
+      info =
+          ((ArrowFlightInfoStatement) statement)
+              .executeFlightInfoQuery(List.of(new HeaderCallOption(headers)));
     } catch (final SQLException e) {
-        throw e;
+      throw e;
     }
     if (scrollable) {
-        return new ArrowFlightJdbcFlightScrollResultSet(statement, state, signature, metaData, timeZone, frame, info);
+      return new ArrowFlightJdbcFlightScrollResultSet(
+          statement, state, signature, metaData, timeZone, frame, info);
     }
     return new ArrowFlightJdbcFlightStreamResultSet(
         statement, state, signature, metaData, timeZone, frame, info);

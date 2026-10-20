@@ -18,7 +18,6 @@ package org.apache.arrow.driver.jdbc;
 
 import java.sql.SQLException;
 import java.util.List;
-
 import org.apache.arrow.driver.jdbc.client.ArrowFlightSqlClientHandler.PreparedStatement;
 import org.apache.arrow.driver.jdbc.utils.ConvertUtils;
 import org.apache.arrow.flight.CallOption;

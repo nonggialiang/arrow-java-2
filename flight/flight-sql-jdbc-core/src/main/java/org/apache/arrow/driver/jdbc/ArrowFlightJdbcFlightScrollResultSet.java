@@ -16,6 +16,13 @@
  */
 package org.apache.arrow.driver.jdbc;
 
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import org.apache.arrow.driver.jdbc.accessor.ArrowFlightJdbcAccessorFactory;
 import org.apache.arrow.driver.jdbc.utils.ArrowFlightConnectionConfigImpl;
 import org.apache.arrow.driver.jdbc.utils.ConvertUtils;
@@ -44,14 +51,6 @@ import org.apache.calcite.avatica.util.AbstractCursor;
 import org.apache.calcite.avatica.util.ArrayImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * server-side paged {@code TYPE_SCROLL_INSENSITIVE} ResultSet.
@@ -135,7 +134,7 @@ public class ArrowFlightJdbcFlightScrollResultSet extends AvaticaResultSet {
   }
 
   public long getTotalRows() {
-      return totalRows;
+    return totalRows;
   }
 
   @Override
@@ -251,7 +250,8 @@ public class ArrowFlightJdbcFlightScrollResultSet extends AvaticaResultSet {
   private ArrowRecordBatch fetchPage(final long pageStart) throws SQLException {
     final CallHeaders headers = new FlightCallHeaders();
     headers.insert(ArrowFlightConnectionConfigImpl.HEADER_FG_PAGE_OFFSET, Long.toString(pageStart));
-    headers.insert(ArrowFlightConnectionConfigImpl.HEADER_FG_PAGE_LIMIT, Integer.toString(pageSize));
+    headers.insert(
+        ArrowFlightConnectionConfigImpl.HEADER_FG_PAGE_LIMIT, Integer.toString(pageSize));
     try (FlightStream stream =
         statement
             .getConnection()
