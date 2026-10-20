@@ -40,6 +40,13 @@ public final class ArrowFlightConnectionConfigImpl extends ConnectionConfigImpl 
 
   // header name for flight-gateway session id
   public static final String HEADER_FG_SESSION_ID = "x-fg-session-id";
+  public static final String HEADER_FG_QUERY_ID = "x-fg-query-id";
+  // header name for flight-gateway result set type
+  public static final String HEADER_FG_RESULT_SET_TYPE = "x-fg-result-set-type";
+  public static final String HEADER_FG_RESULT_SET_TYPE_SCROLL = "scroll";
+  // header names for flight-gateway scroll result set paging
+  public static final String HEADER_FG_PAGE_OFFSET = "x-fg-page-offset";
+  public static final String HEADER_FG_PAGE_LIMIT = "x-fg-page-limit";
 
   public ArrowFlightConnectionConfigImpl(final Properties properties) {
     super(properties);

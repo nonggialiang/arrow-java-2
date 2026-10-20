@@ -17,8 +17,11 @@
 package org.apache.arrow.driver.jdbc;
 
 import java.sql.SQLException;
+import java.util.List;
+
 import org.apache.arrow.driver.jdbc.client.ArrowFlightSqlClientHandler.PreparedStatement;
 import org.apache.arrow.driver.jdbc.utils.ConvertUtils;
+import org.apache.arrow.flight.CallOption;
 import org.apache.arrow.flight.FlightInfo;
 import org.apache.arrow.vector.types.pojo.Schema;
 import org.apache.calcite.avatica.AvaticaStatement;
@@ -43,7 +46,7 @@ public class ArrowFlightStatement extends AvaticaStatement implements ArrowFligh
   }
 
   @Override
-  public FlightInfo executeFlightInfoQuery() throws SQLException {
+  public FlightInfo executeFlightInfoQuery(List<CallOption> extraCallOptions) throws SQLException {
     final PreparedStatement preparedStatement =
         getConnection().getMeta().getPreparedStatement(handle);
     final Meta.Signature signature = getSignature();
@@ -56,6 +59,6 @@ public class ArrowFlightStatement extends AvaticaStatement implements ArrowFligh
         ConvertUtils.convertArrowFieldsToColumnMetaDataList(resultSetSchema.getFields()));
     setSignature(signature);
 
-    return preparedStatement.executeQuery();
+    return preparedStatement.executeQuery(extraCallOptions);
   }
 }

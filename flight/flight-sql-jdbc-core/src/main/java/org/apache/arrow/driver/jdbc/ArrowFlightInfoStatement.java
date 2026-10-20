@@ -18,6 +18,9 @@ package org.apache.arrow.driver.jdbc;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
+
+import org.apache.arrow.flight.CallOption;
 import org.apache.arrow.flight.FlightInfo;
 
 /** A {@link Statement} that deals with {@link FlightInfo}. */
@@ -32,5 +35,5 @@ public interface ArrowFlightInfoStatement extends Statement {
    * @return the {@link FlightInfo} for the results.
    * @throws SQLException on error.
    */
-  FlightInfo executeFlightInfoQuery() throws SQLException;
+  FlightInfo executeFlightInfoQuery(List<CallOption> extraCallOptions) throws SQLException;
 }
