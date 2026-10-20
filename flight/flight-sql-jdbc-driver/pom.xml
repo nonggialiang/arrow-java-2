@@ -35,6 +35,7 @@ under the License.
     <dependency>
       <groupId>org.apache.arrow</groupId>
       <artifactId>flight-sql-jdbc-core</artifactId>
+      <version>19.0.0-fg</version>
       <scope>runtime</scope>
     </dependency>
 

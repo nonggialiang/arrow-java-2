@@ -26,6 +26,7 @@ under the License.
   </parent>
 
   <artifactId>flight-sql-jdbc-core</artifactId>
+  <version>19.0.0-fg</version>
   <packaging>jar</packaging>
   <name>Arrow Flight SQL JDBC Driver Core</name>
   <description>Core implementation of JDBC driver based on Arrow Flight SQL.</description>
@@ -153,7 +154,6 @@ under the License.
     <dependency>
       <groupId>org.apache.arrow</groupId>
       <artifactId>flight-sql</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>

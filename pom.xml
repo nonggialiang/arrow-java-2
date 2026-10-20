@@ -138,7 +138,9 @@ under the License.
       <dependency>
         <groupId>org.apache.arrow</groupId>
         <artifactId>arrow-bom</artifactId>
-        <version>${project.version}</version>
+        <!-- Pinned: flight-sql-jdbc-core is versioned 19.0.0-fg, so ${project.version}
+             would resolve to a non-existent arrow-bom in that module -->
+        <version>19.0.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
