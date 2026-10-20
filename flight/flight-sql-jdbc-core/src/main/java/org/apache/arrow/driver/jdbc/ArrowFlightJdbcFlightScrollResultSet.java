@@ -134,6 +134,10 @@ public class ArrowFlightJdbcFlightScrollResultSet extends AvaticaResultSet {
     return this;
   }
 
+  public long getTotalRows() {
+      return totalRows;
+  }
+
   @Override
   public boolean next() throws SQLException {
     checkOpen();
