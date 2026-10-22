@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -72,9 +73,11 @@ import org.apache.arrow.flight.FlightClient;
 import org.apache.arrow.flight.FlightDescriptor;
 import org.apache.arrow.flight.FlightEndpoint;
 import org.apache.arrow.flight.FlightInfo;
+import org.apache.arrow.flight.FlightRuntimeException;
 import org.apache.arrow.flight.FlightStream;
 import org.apache.arrow.flight.GetSessionOptionsRequest;
 import org.apache.arrow.flight.GetSessionOptionsResult;
+import org.apache.arrow.flight.PollInfo;
 import org.apache.arrow.flight.PutResult;
 import org.apache.arrow.flight.RenewFlightEndpointRequest;
 import org.apache.arrow.flight.Result;
@@ -100,6 +103,13 @@ import org.apache.arrow.vector.types.pojo.Schema;
 
 /** Flight client with Flight SQL semantics. */
 public class FlightSqlClient implements AutoCloseable {
+
+  /** Total budget for the client-side poll loop in poll. */
+  private static final long POLL_TOTAL_DEADLINE_MS = TimeUnit.MINUTES.toMillis(10);
+
+  private static final long POLL_INITIAL_BACKOFF_MS = 100;
+  private static final long POLL_MAX_BACKOFF_MS = 1000;
+
   private final FlightClient client;
 
   public FlightSqlClient(final FlightClient client) {
@@ -1362,10 +1372,42 @@ public class FlightSqlClient implements AutoCloseable {
         }
       }
 
-      FlightInfo flightInfo = client.getInfo(descriptor, options);
+      return poll(descriptor, options);
+    }
+
+    /**
+     * Execute via PollFlightInfo.
+     *
+     * <p>Poll semantics: the first call registers (and typically triggers) the query; a response
+     * still carrying a flight descriptor means the query is running and the client should poll
+     * again (with backoff, under a total deadline); a terminal response carries the final {@link
+     * FlightInfo}.
+     */
+    private FlightInfo poll(final FlightDescriptor descriptor, final CallOption... options) {
+      PollInfo info = client.pollInfo(descriptor, options);
       // Now query is running and any other can cancel it with the flightInfo returned
-      cancelInfo.set(flightInfo);
-      return flightInfo;
+      cancelInfo.set(info.getFlightInfo());
+      final long deadline = System.currentTimeMillis() + POLL_TOTAL_DEADLINE_MS;
+      long backoff = POLL_INITIAL_BACKOFF_MS;
+      while (info.getFlightDescriptor().isPresent()) {
+        try {
+          Thread.sleep(backoff);
+        } catch (final InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw CallStatus.CANCELLED.withCause(e).toRuntimeException();
+        }
+        backoff = Math.min(backoff * 2, POLL_MAX_BACKOFF_MS);
+        if (System.currentTimeMillis() > deadline) {
+          throw CallStatus.TIMED_OUT
+              .withDescription(
+                  "Query did not reach a terminal state within "
+                      + TimeUnit.MILLISECONDS.toMinutes(POLL_TOTAL_DEADLINE_MS)
+                      + " minutes of polling")
+              .toRuntimeException();
+        }
+        info = client.pollInfo(info.getFlightDescriptor().get(), options);
+      }
+      return info.getFlightInfo();
     }
 
     private SyncPutListener putParameters(FlightDescriptor descriptor, CallOption... options) {
