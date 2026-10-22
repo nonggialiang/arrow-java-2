@@ -63,11 +63,12 @@ public final class ArrowFlightJdbcFlightStreamResultSet
       final Meta.Signature signature,
       final ResultSetMetaData resultSetMetaData,
       final TimeZone timeZone,
-      final Meta.Frame firstFrame)
+      final Meta.Frame firstFrame,
+      final FlightInfo flightInfo)
       throws SQLException {
     super(statement, state, signature, resultSetMetaData, timeZone, firstFrame);
     this.connection = (ArrowFlightConnection) statement.connection;
-    this.flightInfo = ((ArrowFlightInfoStatement) statement).executeFlightInfoQuery();
+    this.flightInfo = flightInfo;
   }
 
   /** Private constructor for fromFlightInfo. */

@@ -48,11 +48,13 @@ import org.apache.arrow.flight.FlightGrpcUtils;
 import org.apache.arrow.flight.FlightInfo;
 import org.apache.arrow.flight.FlightRuntimeException;
 import org.apache.arrow.flight.FlightStatusCode;
+import org.apache.arrow.flight.FlightStream;
 import org.apache.arrow.flight.Location;
 import org.apache.arrow.flight.LocationSchemes;
 import org.apache.arrow.flight.SessionOptionValueFactory;
 import org.apache.arrow.flight.SetSessionOptionsRequest;
 import org.apache.arrow.flight.SetSessionOptionsResult;
+import org.apache.arrow.flight.Ticket;
 import org.apache.arrow.flight.auth2.BearerCredentialWriter;
 import org.apache.arrow.flight.auth2.ClientBearerHeaderHandler;
 import org.apache.arrow.flight.auth2.ClientIncomingAuthHeaderMiddleware;
@@ -132,6 +134,14 @@ public final class ArrowFlightSqlClientHandler implements AutoCloseable {
    */
   private CallOption[] getOptions() {
     return options.toArray(new CallOption[0]);
+  }
+
+  private CallOption[] getWithExtraOptions(List<CallOption> extraCallOptions) {
+      List<CallOption> combinedOptions = new ArrayList<>(options);
+      if (extraCallOptions != null) {
+          combinedOptions.addAll(extraCallOptions);
+      }
+      return combinedOptions.toArray(new CallOption[0]);
   }
 
   /**
@@ -350,6 +360,15 @@ public final class ArrowFlightSqlClientHandler implements AutoCloseable {
     LOGGER.debug("Suppressed error {}", operationDescription, fre);
   }
 
+    /**
+     * Raw ticket DoGet for scrollable (server-side paged) result sets — pages are
+     * addressed by re-presenting the endpoint STREAM ticket with paging headers. Extra options
+     * (auth/session headers come from the handler-wide options) are appended per call.
+     */
+    public FlightStream getStream(Ticket ticket, List<CallOption> extraCallOptions) {
+        return sqlClient.getStream(ticket, getWithExtraOptions(extraCallOptions));
+    }
+
   /** A prepared statement handler. */
   public interface PreparedStatement extends AutoCloseable {
     /**
@@ -358,7 +377,7 @@ public final class ArrowFlightSqlClientHandler implements AutoCloseable {
      * @return the {@link FlightInfo} representing the outcome of this query execution.
      * @throws SQLException on error.
      */
-    FlightInfo executeQuery() throws SQLException;
+    FlightInfo executeQuery(List<CallOption> extraCallOptions) throws SQLException;
 
     /**
      * Executes a {@link StatementType#UPDATE} query.
@@ -445,8 +464,8 @@ public final class ArrowFlightSqlClientHandler implements AutoCloseable {
         sqlClient.prepare(query, getOptions());
     return new PreparedStatement() {
       @Override
-      public FlightInfo executeQuery() throws SQLException {
-        return preparedStatement.execute(getOptions());
+      public FlightInfo executeQuery(List<CallOption> extraCallOptions) throws SQLException {
+        return preparedStatement.execute(getWithExtraOptions(extraCallOptions));
       }
 
       @Override
