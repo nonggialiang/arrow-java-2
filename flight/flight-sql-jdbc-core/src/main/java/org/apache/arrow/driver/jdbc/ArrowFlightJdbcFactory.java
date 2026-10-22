@@ -120,16 +120,20 @@ public class ArrowFlightJdbcFactory implements AvaticaFactory {
     boolean scrollable = statement.getResultSetType() == ResultSet.TYPE_SCROLL_INSENSITIVE;
     // if statement created with params resultSetType=TYPE_SCROLL_INSENSITIVE
     if (scrollable) {
-        headers.insert(ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE,
-                ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE_SCROLL);
+      headers.insert(
+          ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE,
+          ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE_SCROLL);
     }
     try {
-        info = ((ArrowFlightInfoStatement) statement).executeFlightInfoQuery(List.of(new HeaderCallOption(headers)));
+      info =
+          ((ArrowFlightInfoStatement) statement)
+              .executeFlightInfoQuery(List.of(new HeaderCallOption(headers)));
     } catch (final SQLException e) {
-        throw e;
+      throw e;
     }
     if (scrollable) {
-        return new ArrowFlightJdbcFlightScrollResultSet(statement, state, signature, metaData, timeZone, frame, info);
+      return new ArrowFlightJdbcFlightScrollResultSet(
+          statement, state, signature, metaData, timeZone, frame, info);
     }
     return new ArrowFlightJdbcFlightStreamResultSet(
         statement, state, signature, metaData, timeZone, frame, info);

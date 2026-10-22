@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-
 import org.apache.arrow.driver.jdbc.client.ArrowFlightSqlClientHandler;
 import org.apache.arrow.driver.jdbc.client.utils.FlightClientCache;
 import org.apache.arrow.driver.jdbc.utils.ArrowFlightConnectionConfigImpl;
@@ -112,20 +111,28 @@ public final class ArrowFlightConnection extends AvaticaConnection {
 
     // a CallOption for connection to use
     final Set<CallOptions.GrpcCallOption> wrappedCallOptions = new HashSet<>();
-    CallOption connectionCallOption = new CallOptions.GrpcCallOption() {
-        @Override
-        public <T extends AbstractStub<T>> T wrapStub(T stub) {
+    CallOption connectionCallOption =
+        new CallOptions.GrpcCallOption() {
+          @Override
+          public <T extends AbstractStub<T>> T wrapStub(T stub) {
             for (CallOptions.GrpcCallOption oneCallOption : wrappedCallOptions) {
-                stub = oneCallOption.wrapStub(stub);
+              stub = oneCallOption.wrapStub(stub);
             }
             return stub;
-        }
-    };
+          }
+        };
     // build conne
     final ArrowFlightSqlClientHandler clientHandler =
         createNewClientHandler(config, allocator, driver.getDriverVersion(), connectionCallOption);
     return new ArrowFlightConnection(
-        driver, factory, url, properties, config, allocator, clientHandler, wrappedCallOptions::add);
+        driver,
+        factory,
+        url,
+        properties,
+        config,
+        allocator,
+        clientHandler,
+        wrappedCallOptions::add);
   }
 
   private static ArrowFlightSqlClientHandler createNewClientHandler(

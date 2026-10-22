@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.arrow.flight.Action;
@@ -1221,6 +1222,8 @@ public class FlightSqlClient implements AutoCloseable {
     private boolean isClosed;
     private Schema resultSetSchema;
     private Schema parameterSchema;
+    // For cancels
+    private AtomicReference<FlightInfo> cancelInfo = new AtomicReference<>();
 
     PreparedStatement(FlightClient client, Action action, CallOption... options) {
       this.client = client;
@@ -1359,7 +1362,10 @@ public class FlightSqlClient implements AutoCloseable {
         }
       }
 
-      return client.getInfo(descriptor, options);
+      FlightInfo flightInfo = client.getInfo(descriptor, options);
+      // Now query is running and any other can cancel it with the flightInfo returned
+      cancelInfo.set(flightInfo);
+      return flightInfo;
     }
 
     private SyncPutListener putParameters(FlightDescriptor descriptor, CallOption... options) {
@@ -1455,6 +1461,26 @@ public class FlightSqlClient implements AutoCloseable {
      */
     public boolean isClosed() {
       return isClosed;
+    }
+
+    /**
+     * Cancel a statement only if it's executed.
+     *
+     * @return true if successfully cancelled, false if there's no executed statement to cancel
+     */
+    public boolean cancel(final CallOption... options) {
+      FlightInfo currentFlightInfo = cancelInfo.getAndSet(null);
+      if (currentFlightInfo != null) {
+        try {
+          client.cancelFlightInfo(new CancelFlightInfoRequest(currentFlightInfo), options);
+          return true;
+        } catch (final RuntimeException e) {
+          // Put back for retry
+          cancelInfo.compareAndSet(null, currentFlightInfo);
+          throw e;
+        }
+      }
+      return false;
     }
   }
 

@@ -19,7 +19,6 @@ package org.apache.arrow.driver.jdbc;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-
 import org.apache.arrow.driver.jdbc.client.ArrowFlightSqlClientHandler;
 import org.apache.arrow.flight.CallOption;
 import org.apache.arrow.flight.FlightInfo;
@@ -80,5 +79,12 @@ public class ArrowFlightPreparedStatement extends AvaticaPreparedStatement
   @Override
   public FlightInfo executeFlightInfoQuery(List<CallOption> extraCallOptions) throws SQLException {
     return preparedStatement.executeQuery(extraCallOptions);
+  }
+
+  @Override
+  public void cancel() throws SQLException {
+    if (preparedStatement != null && preparedStatement.cancel()) {
+      super.cancel();
+    }
   }
 }

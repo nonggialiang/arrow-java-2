@@ -18,8 +18,7 @@ package org.apache.arrow.driver.jdbc;
 
 import java.sql.SQLException;
 import java.util.List;
-
-import org.apache.arrow.driver.jdbc.client.ArrowFlightSqlClientHandler.PreparedStatement;
+import org.apache.arrow.driver.jdbc.client.ArrowFlightSqlClientHandler;
 import org.apache.arrow.driver.jdbc.utils.ConvertUtils;
 import org.apache.arrow.flight.CallOption;
 import org.apache.arrow.flight.FlightInfo;
@@ -30,6 +29,8 @@ import org.apache.calcite.avatica.Meta.StatementHandle;
 
 /** A SQL statement for querying data from an Arrow Flight server. */
 public class ArrowFlightStatement extends AvaticaStatement implements ArrowFlightInfoStatement {
+
+  private volatile ArrowFlightSqlClientHandler.PreparedStatement preparedStatement;
 
   ArrowFlightStatement(
       final ArrowFlightConnection connection,
@@ -47,8 +48,7 @@ public class ArrowFlightStatement extends AvaticaStatement implements ArrowFligh
 
   @Override
   public FlightInfo executeFlightInfoQuery(List<CallOption> extraCallOptions) throws SQLException {
-    final PreparedStatement preparedStatement =
-        getConnection().getMeta().getPreparedStatement(handle);
+    this.preparedStatement = getConnection().getMeta().getPreparedStatement(handle);
     final Meta.Signature signature = getSignature();
     if (signature == null) {
       return null;
@@ -60,5 +60,12 @@ public class ArrowFlightStatement extends AvaticaStatement implements ArrowFligh
     setSignature(signature);
 
     return preparedStatement.executeQuery(extraCallOptions);
+  }
+
+  @Override
+  public void cancel() throws SQLException {
+    if (preparedStatement != null && preparedStatement.cancel()) {
+      super.cancel();
+    }
   }
 }
