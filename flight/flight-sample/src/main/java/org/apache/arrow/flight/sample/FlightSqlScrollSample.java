@@ -29,19 +29,25 @@ import java.util.zip.CRC32;
 import org.apache.arrow.driver.jdbc.ArrowFlightJdbcFlightScrollResultSet;
 
 /**
- * Sample that runs a query through the Arrow Flight SQL JDBC driver with a {@link
- * ResultSet#TYPE_SCROLL_INSENSITIVE} statement, then reads the result in random page order using
- * {@code absolute()} to seek and {@code next()} to fetch rows, checksums every row and reports
- * per-page timing statistics.
+ * Sample that runs a query through the Arrow Flight SQL JDBC driver.
  *
- * <p>Usage: {@code FlightSqlScrollSample <jdbcUrl> <user> <password> <pageSize> <sql>}
+ * <p>In {@code scroll} mode the statement is created {@link ResultSet#TYPE_SCROLL_INSENSITIVE}, the
+ * result is read in random page order using {@code absolute()} to seek and {@code next()} to fetch
+ * rows, checksums every row and reports per-page timing statistics.
+ *
+ * <p>In {@code forward} mode the statement is created {@link ResultSet#TYPE_FORWARD_ONLY} and all
+ * rows are read sequentially from start to end, checksummed and reported.
+ *
+ * <p>Usage: {@code FlightSqlScrollSample <jdbcUrl> <user> <password> <pageSize> <mode> <sql>}
  */
 public final class FlightSqlScrollSample {
 
   private static final String USAGE =
-      "Usage: FlightSqlScrollSample <jdbcUrl> <user> <password> <pageSize> <sql>\n"
+      "Usage: FlightSqlScrollSample <jdbcUrl> <user> <password> <pageSize> <mode> <sql>\n"
           + "  jdbcUrl   e.g. jdbc:arrow-flight-sql://localhost:47470\n"
           + "  pageSize  page size for server-side paging, also set as the statement fetch size\n"
+          + "  mode      scroll (TYPE_SCROLL_INSENSITIVE, random paged access) or\n"
+          + "            forward (TYPE_FORWARD_ONLY, sequential read)\n"
           + "  sql       query to execute";
 
   private FlightSqlScrollSample() {}
@@ -49,10 +55,10 @@ public final class FlightSqlScrollSample {
   /**
    * Entry point.
    *
-   * @param args jdbcUrl, user, password, pageSize, sql
+   * @param args jdbcUrl, user, password, pageSize, mode, sql
    */
   public static void main(String[] args) {
-    if (args.length != 5) {
+    if (args.length != 6) {
       System.err.println(USAGE);
       System.exit(1);
     }
@@ -60,13 +66,24 @@ public final class FlightSqlScrollSample {
     final String user = args[1];
     final String password = args[2];
     final int pageSize = Integer.parseInt(args[3]);
-    final String sql = args[4];
+    final String mode = args[4];
+    final String sql = args[5];
     if (pageSize <= 0) {
       System.err.println("pageSize must be positive, got: " + pageSize);
       System.exit(1);
     }
+    final boolean scroll;
+    if ("scroll".equalsIgnoreCase(mode)) {
+      scroll = true;
+    } else if ("forward".equalsIgnoreCase(mode)) {
+      scroll = false;
+    } else {
+      System.err.println("mode must be 'scroll' or 'forward', got: " + mode);
+      System.exit(1);
+      return;
+    }
     try {
-      run(url, user, password, pageSize, sql);
+      run(url, user, password, pageSize, scroll, sql);
     } catch (SQLException e) {
       System.err.println("Sample failed: " + e.getMessage());
       e.printStackTrace();
@@ -74,26 +91,48 @@ public final class FlightSqlScrollSample {
     }
   }
 
-  private static void run(String url, String user, String password, int pageSize, String sql)
+  private static void run(
+      String url, String user, String password, int pageSize, boolean scroll, String sql)
       throws SQLException {
+    final int resultSetType =
+        scroll ? ResultSet.TYPE_SCROLL_INSENSITIVE : ResultSet.TYPE_FORWARD_ONLY;
     try (Connection connection = DriverManager.getConnection(url, user, password);
         Statement statement =
-            connection.createStatement(
-                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            connection.createStatement(resultSetType, ResultSet.CONCUR_READ_ONLY)) {
       statement.setFetchSize(pageSize);
-      System.out.println("executing SQL: " + sql);
+      System.out.println(
+          "executing SQL: " + sql + " (mode: " + (scroll ? "scroll" : "forward") + ")");
       final long executeStart = System.nanoTime();
       try (ResultSet resultSet = statement.executeQuery(sql)) {
         System.out.printf(
             "SQL executed in %.3f ms%n", (System.nanoTime() - executeStart) / 1_000_000.0);
-        if (!(resultSet instanceof ArrowFlightJdbcFlightScrollResultSet)) {
-          throw new SQLException(
-              "Expected ArrowFlightJdbcFlightScrollResultSet but got "
-                  + resultSet.getClass().getName());
+        if (scroll) {
+          if (!(resultSet instanceof ArrowFlightJdbcFlightScrollResultSet)) {
+            throw new SQLException(
+                "Expected ArrowFlightJdbcFlightScrollResultSet but got "
+                    + resultSet.getClass().getName());
+          }
+          readRandomPages((ArrowFlightJdbcFlightScrollResultSet) resultSet, pageSize);
+        } else {
+          readSequentially(resultSet);
         }
-        readRandomPages((ArrowFlightJdbcFlightScrollResultSet) resultSet, pageSize);
       }
     }
+  }
+
+  private static void readSequentially(ResultSet resultSet) throws SQLException {
+    final int columnCount = resultSet.getMetaData().getColumnCount();
+    final CRC32 checksum = new CRC32();
+    final long start = System.nanoTime();
+    long rowsRead = 0;
+    while (resultSet.next()) {
+      updateChecksum(resultSet, columnCount, checksum);
+      rowsRead++;
+    }
+    final double millis = (System.nanoTime() - start) / 1_000_000.0;
+    System.out.printf("rows read: %d%n", rowsRead);
+    System.out.printf("checksum: %s%n", Long.toHexString(checksum.getValue()));
+    System.out.printf("read time: %.3f ms%n", millis);
   }
 
   private static void readRandomPages(ArrowFlightJdbcFlightScrollResultSet resultSet, int pageSize)
