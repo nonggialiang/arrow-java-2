@@ -47,6 +47,10 @@ public final class ArrowFlightConnectionConfigImpl extends ConnectionConfigImpl 
   // header names for flight-gateway scroll result set paging
   public static final String HEADER_FG_PAGE_OFFSET = "x-fg-page-offset";
   public static final String HEADER_FG_PAGE_LIMIT = "x-fg-page-limit";
+  // header names for flight-gateway inline streaming mode
+  public static final String HEADER_FG_ENDPOINT_MODE = "x-fg-endpoint-mode";
+  public static final String HEADER_FG_ENDPOINT_MODE_INLINE = "inline";
+  public static final String HEADER_FG_RESUME_RESPONSE_ID = "x-fg-resume-response-id";
 
   public ArrowFlightConnectionConfigImpl(final Properties properties) {
     super(properties);
@@ -223,6 +227,15 @@ public final class ArrowFlightConnectionConfigImpl extends ConnectionConfigImpl 
           }
         });
     return headers;
+  }
+
+  /**
+   * Whether the connection declares {@code x-fg-endpoint-mode=inline} (passed via the JDBC URL or
+   * connection Properties and transparently forwarded to the gateway as an RPC header).
+   */
+  public boolean isInlineMode() {
+    return HEADER_FG_ENDPOINT_MODE_INLINE.equalsIgnoreCase(
+        getHeaderAttributes().get(HEADER_FG_ENDPOINT_MODE));
   }
 
   /**

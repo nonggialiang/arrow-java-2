@@ -205,6 +205,15 @@ public final class ArrowFlightConnection extends AvaticaConnection {
   }
 
   /**
+   * Gets the {@link #config} backing this connection.
+   *
+   * @return the config.
+   */
+  ArrowFlightConnectionConfigImpl getConfig() {
+    return config;
+  }
+
+  /**
    * Gets the {@link ExecutorService} of this connection.
    *
    * @return the {@link #executorService}.

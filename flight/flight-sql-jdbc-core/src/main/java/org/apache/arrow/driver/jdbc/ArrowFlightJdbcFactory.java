@@ -116,9 +116,15 @@ public class ArrowFlightJdbcFactory implements AvaticaFactory {
     final CallHeaders headers = new FlightCallHeaders();
     // use statementHandle(connectionId::id) as query id
     headers.insert(ArrowFlightConnectionConfigImpl.HEADER_FG_QUERY_ID, statement.handle.toString());
-    // if connection with params x-fg-result-set-type=scroll
-    boolean scrollable = statement.getResultSetType() == ResultSet.TYPE_SCROLL_INSENSITIVE;
+    // if connection with URL param x-fg-endpoint-mode=inline (header flows via toCallOption)
+    final boolean inline =
+        ((ArrowFlightInfoStatement) statement).getConnection().getConfig().isInlineMode();
     // if statement created with params resultSetType=TYPE_SCROLL_INSENSITIVE
+    final boolean scrollable = statement.getResultSetType() == ResultSet.TYPE_SCROLL_INSENSITIVE;
+    if (inline && scrollable) {
+      // ISE (not SQLException): the meta layer retries SQLExceptions away, losing the message
+      throw new IllegalStateException("inline and scroll result set types are mutually exclusive");
+    }
     if (scrollable) {
       headers.insert(
           ArrowFlightConnectionConfigImpl.HEADER_FG_RESULT_SET_TYPE,
@@ -130,6 +136,13 @@ public class ArrowFlightJdbcFactory implements AvaticaFactory {
               .executeFlightInfoQuery(List.of(new HeaderCallOption(headers)));
     } catch (final SQLException e) {
       throw e;
+    }
+    // Inline mode: an INLINE ticket means the gateway honored it and will proxy rows over DoGet.
+    // A non-INLINE ticket (defensive: gateway fell back to relay) is consumed through the regular
+    // stream result set below.
+    if (inline && ArrowFlightJdbcInlineResultSet.isInlineTicket(info)) {
+      return new ArrowFlightJdbcInlineResultSet(
+          statement, state, signature, metaData, timeZone, frame, info);
     }
     if (scrollable) {
       return new ArrowFlightJdbcFlightScrollResultSet(

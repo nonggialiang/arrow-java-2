@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.CRC32;
 import org.apache.arrow.driver.jdbc.ArrowFlightJdbcFlightScrollResultSet;
+import org.apache.arrow.driver.jdbc.ArrowFlightJdbcInlineResultSet;
 
 /**
  * Sample that runs a query through the Arrow Flight SQL JDBC driver.
@@ -38,6 +39,13 @@ import org.apache.arrow.driver.jdbc.ArrowFlightJdbcFlightScrollResultSet;
  * <p>In {@code forward} mode the statement is created {@link ResultSet#TYPE_FORWARD_ONLY} and all
  * rows are read sequentially from start to end, checksummed and reported.
  *
+ * <p>In {@code inline} mode the JDBC URL must declare {@code ;x-fg-endpoint-mode=inline}; the
+ * gateway returns an {@code INLINE|} ticket and rows are proxied batch-by-batch over DoGet without
+ * materialization. Rows are read sequentially like {@code forward}; if the stream breaks
+ * mid-consumption the driver replays the ticket with {@code x-fg-resume-response-id} and continues
+ * after the last acknowledged batch, so killing the network mid-query is recoverable by just
+ * keeping {@code next()} called. The final responseId is reported.
+ *
  * <p>Usage: {@code FlightSqlScrollSample <jdbcUrl> <user> <password> <pageSize> <mode> <sql>}
  */
 public final class FlightSqlScrollSample {
@@ -45,9 +53,11 @@ public final class FlightSqlScrollSample {
   private static final String USAGE =
       "Usage: FlightSqlScrollSample <jdbcUrl> <user> <password> <pageSize> <mode> <sql>\n"
           + "  jdbcUrl   e.g. jdbc:arrow-flight-sql://localhost:47470\n"
+          + "            (inline mode: append ;x-fg-endpoint-mode=inline)\n"
           + "  pageSize  page size for server-side paging, also set as the statement fetch size\n"
-          + "  mode      scroll (TYPE_SCROLL_INSENSITIVE, random paged access) or\n"
-          + "            forward (TYPE_FORWARD_ONLY, sequential read)\n"
+          + "  mode      scroll (TYPE_SCROLL_INSENSITIVE, random paged access),\n"
+          + "            forward (TYPE_FORWARD_ONLY, sequential read) or\n"
+          + "            inline (TYPE_FORWARD_ONLY, FG inline streaming with resume)\n"
           + "  sql       query to execute";
 
   private FlightSqlScrollSample() {}
@@ -73,17 +83,23 @@ public final class FlightSqlScrollSample {
       System.exit(1);
     }
     final boolean scroll;
+    final boolean inline;
     if ("scroll".equalsIgnoreCase(mode)) {
       scroll = true;
+      inline = false;
     } else if ("forward".equalsIgnoreCase(mode)) {
       scroll = false;
+      inline = false;
+    } else if ("inline".equalsIgnoreCase(mode)) {
+      scroll = false;
+      inline = true;
     } else {
-      System.err.println("mode must be 'scroll' or 'forward', got: " + mode);
+      System.err.println("mode must be 'scroll', 'forward' or 'inline', got: " + mode);
       System.exit(1);
       return;
     }
     try {
-      run(url, user, password, pageSize, scroll, sql);
+      run(url, user, password, pageSize, scroll, inline, sql);
     } catch (SQLException e) {
       System.err.println("Sample failed: " + e.getMessage());
       e.printStackTrace();
@@ -92,7 +108,8 @@ public final class FlightSqlScrollSample {
   }
 
   private static void run(
-      String url, String user, String password, int pageSize, boolean scroll, String sql)
+      String url, String user, String password, int pageSize, boolean scroll, boolean inline,
+      String sql)
       throws SQLException {
     final int resultSetType =
         scroll ? ResultSet.TYPE_SCROLL_INSENSITIVE : ResultSet.TYPE_FORWARD_ONLY;
@@ -101,7 +118,8 @@ public final class FlightSqlScrollSample {
             connection.createStatement(resultSetType, ResultSet.CONCUR_READ_ONLY)) {
       statement.setFetchSize(pageSize);
       System.out.println(
-          "executing SQL: " + sql + " (mode: " + (scroll ? "scroll" : "forward") + ")");
+          "executing SQL: " + sql + " (mode: " + (scroll ? "scroll" : inline ? "inline" : "forward")
+              + ")");
       final long executeStart = System.nanoTime();
       try (ResultSet resultSet = statement.executeQuery(sql)) {
         System.out.printf(
@@ -114,7 +132,19 @@ public final class FlightSqlScrollSample {
           }
           readRandomPages((ArrowFlightJdbcFlightScrollResultSet) resultSet, pageSize);
         } else {
+          if (inline && !(resultSet instanceof ArrowFlightJdbcInlineResultSet)) {
+            throw new SQLException(
+                "Expected ArrowFlightJdbcInlineResultSet but got "
+                    + resultSet.getClass().getName()
+                    + " (does the URL declare ;x-fg-endpoint-mode=inline and the gateway support"
+                    + " it?)");
+          }
           readSequentially(resultSet);
+          if (inline) {
+            System.out.printf(
+                "last responseId: %s%n",
+                ((ArrowFlightJdbcInlineResultSet) resultSet).getLastResponseId());
+          }
         }
       }
     }
